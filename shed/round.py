@@ -1,9 +1,29 @@
+from enum import StrEnum
+from typing import List
+
 from shed.card import ShedCard
 from shed.dealer import ShedDealer
 import numpy as np
 
-class ShedRound:
+from shed.player import ShedPlayer
 
+class ShedAction(StrEnum):
+    Ace = "Ace"
+    Two = "Two"
+    Three = "Three"
+    Four = "Four"
+    Five = "Five"
+    Six = "Six"
+    Seven = "Seven"
+    Eight = "Eight"
+    Nine = "Nine"
+    Ten = "Ten"
+    Jack = "Jack"
+    Queen = "Queen"
+    King = "King"
+    Pickup = "Pickup"
+
+class ShedRound:
     def __init__(self, dealer: ShedDealer, num_players: int, np_random: np.random):
         """ Initialize the round class
 
@@ -16,25 +36,21 @@ class ShedRound:
         self.current_player = 0
         self.num_players = num_players
         self.direction = 1
-        self.played_cards = []
+        self.active_deck = []
         self.is_over = False
         self.winner = None
+        self.lower_than_active = False
+        self.see_through_active = False
 
-    def perform_top_card(self, card: ShedCard):
-        """ Play Card"""
-        if top_card.trait == "skip":
-            self.current_player = 1
-        elif top_card.trait == "reverse":
-            self.direction = -1
-            self.current_player = (0 + self.direction) % self.num_players
-        elif top_card.trait == "draw_2":
-            player = players[self.current_player]
-            self.dealer.deal_cards(player, 2)
+    def handle_action(self, player: ShedPlayer, action: ShedAction):
+        if action == ShedAction.Pickup:
+            player.take_cards(self.active_deck)
+            self.active_deck = []
 
-
-    def handle_action(self, player: ShedPlayer, action: ShedCard):
-        self.receive_card(action)
-        self.deal_card(player)
+        else:
+            card = player.play_card(action)
+            self.play_card(card)
+            self.dealer.deal_card(player)
 
     def can_beat_ace(self, card: ShedCard) -> bool:
         return card.suit in ["A", "3", "7"]
@@ -59,7 +75,7 @@ class ShedRound:
 
         return card >= top_card
 
-    def receive_card(self, card: ShedCard):
+    def play_card(self, card: ShedCard):
         if card.rank == "3":
             self.see_through_active = True
         elif card.rank == "7":
@@ -75,7 +91,7 @@ class ShedRound:
         self.see_through_active = False
         self.lower_than_active = False
 
-    def proceed_round(self, players, action):
+    def proceed_round(self, players: List[ShedPlayer], action):
         """ Call other Classes" functions to keep one round running
 
         Args:

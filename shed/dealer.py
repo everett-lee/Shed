@@ -13,10 +13,7 @@ class ShedDealer:
         self.np_random = np_random
         self.num_decks = 1
         self.unplayed_deck = init_standard_deck()
-        self.live_deck = []
         self.shuffle()
-        self.lower_than_active = False
-        self.see_through_active = False
 
     def shuffle(self) -> None:
         """Shuffle the deck"""
