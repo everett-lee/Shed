@@ -12,3 +12,4 @@ class ShedPlayer:
     def get_player_id(self) -> int:
         """Return player's id"""
         return self.player_id
+
