@@ -2,8 +2,8 @@ from typing import List
 
 import numpy as np
 
-from shed.card import ShedCard
-from shed.round import ShedAction
+from shed.game.card import ShedCard
+from shed.game.round import ShedAction
 
 
 class ShedPlayer:
@@ -38,7 +38,9 @@ class ShedPlayer:
         self.hand += cards
 
     def play_card(self, action: ShedAction) -> ShedCard:
-        card_arr = [card for card in self.hand if card.rank == self.action_to_rank[action]]
+        card_arr = [
+            card for card in self.hand if card.rank == self.action_to_rank[action]
+        ]
         if not card_arr:
             raise Exception(f"{action} not present in the hand")
         card = card_arr[0]

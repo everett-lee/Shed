@@ -1,4 +1,4 @@
-from shed.player import ShedPlayer
+from shed.game.player import ShedPlayer
 
 
 class ShedJudger:
