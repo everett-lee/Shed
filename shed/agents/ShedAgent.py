@@ -29,6 +29,7 @@ class HumanAgent(object):
             action_input = input(">> You choose action (integer): ")
 
         action = int(action_input)
+        print(f"LEGAL ACTIONS = {state['legal_actions']}")
         while action < 0 or action >= len(state["legal_actions"]):
             print("Action illegal...")
             action = int(input(">> Re-choose action (integer): "))
@@ -66,7 +67,9 @@ def _print_state(state, action_record):
     print_card(state["active_deck"])
 
     print("=============  Player", state["current_player"], "- Hand   =============")
-    print_card(state["hand"])
+    card_chunks = [state["hand"][i:i + 10] for i in range(0, len(state["hand"]), 10)]
+    for cards in card_chunks:
+        print_card(cards)
 
     print("\n=========== Actions You Can Choose ===========")
     print(

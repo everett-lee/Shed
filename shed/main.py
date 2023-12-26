@@ -16,7 +16,7 @@ env = rlcard.make('shed')
 human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
 env.set_agents([
-    random_agent,
+    human_agent,
     random_agent,
 ])
 

@@ -45,7 +45,7 @@ class ShedCard(Card):
             return ValueError("Can only compare to other ShedCard")
 
     def __lt__(self, other: "ShedCard"):
-        if other.is_magic_card() and not self.is_magic_card():
+        if other.is_ace() and not self.is_magic_card():
             return False
 
         if isinstance(other, Card):
@@ -59,7 +59,7 @@ class ShedCard(Card):
         return self.__lt__(other) or self.__eq__(other)
 
     def __gt__(self, other: "ShedCard"):
-        if self.is_magic_card() and not other.is_magic_card():
+        if self.is_ace():
             return True
 
         if isinstance(other, Card):

@@ -60,6 +60,9 @@ class ShedRound:
         threes_removed = [c for c in self.active_deck if c.rank != "3"]
 
         if not threes_removed or card.is_magic_card():
+            print("^"*100)
+            print("DEALING WITH MAGIC OR EMPTY")
+            print("^"*100)
             return True
         else:
             top_card = threes_removed[-1]
@@ -70,6 +73,10 @@ class ShedRound:
             return card.is_magic_card()
 
         if top_card.is_seven():
+            print("%"*100)
+            print("DEALING WITH SEVEN")
+            print(f"COMPARING {card.rank} with TOP CARD {top_card.rank}")
+            print(f"RESULT {card <= top_card}")
             return card <= top_card
 
         return card >= top_card
@@ -101,10 +108,21 @@ class ShedRound:
 
     # TODO handle no legal actions leaves you with pickup
     def get_legal_actions(self, player: ShedPlayer) -> List[ShedAction]:
-        playable_cards = sorted([ShedCard(card.suit, card.rank) for card in player.hand if self.is_legal_card(card)])
-        return [self.rank_to_action[card.rank] for card in playable_cards] + [
+        print(f"EXAMINING HAND {[c.rank for c in player.hand]}")
+        typed_cards = [ShedCard(card.suit, card.rank) for card in player.hand]
+        print(f"AND TYPED {[c.rank for c in player.hand]}")
+        playable_cards = [card for card in typed_cards if self.is_legal_card(card)]
+        print(f"AFTER: {[c.rank for c in playable_cards]}")
+        full_actions = [self.rank_to_action[card.rank] for card in playable_cards] + [
             ShedAction.Pickup
         ]
+        unique_actions = list(set(full_actions))
+        print("*"*100)
+        print("FULL AND UNIQUE ACTIONS")
+        print(sorted((full_actions)))
+        print(sorted((unique_actions)))
+        print("*"*100)
+        return unique_actions
 
     def is_over(self) -> bool:
         """Check if the game is over"""
