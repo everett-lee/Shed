@@ -1,11 +1,13 @@
-from typing import List, Dict
+from typing import Dict, List, Union
 
 import numpy as np
 
-from dealer import ShedDealer
-from player import ShedPlayer
-from judger import ShedJudger
-from shed.game.round import ShedRound, ShedAction
+from shed.game.dealer import ShedDealer
+from shed.game.judger import ShedJudger
+from shed.game.player import ShedPlayer
+from shed.game.round import ShedRound
+from shed.game.utils import ShedAction
+
 
 
 class ShedGame:
@@ -28,10 +30,9 @@ class ShedGame:
     def init_game(self) -> tuple:
         """Initialilze the game"""
         self.dealer = ShedDealer(self.np_random)
-
         self.players = [ShedPlayer(i, self.np_random) for i in range(self.num_players)]
-
         self.judger = ShedJudger(self.np_random)
+        self.game_pointer = 0
 
         for player in self.players:
             for _ in range(self.num_starting_cards):
@@ -64,6 +65,10 @@ class ShedGame:
 
         # Then we proceed to the next round
         self.game_pointer = self.round.proceed_round(self.players, action)
+        player = self.players[self.game_pointer]
+        player.score = self.judger.judge_round(player)
+        print(f"PLAYER HAND: {[c.rank for c in player.hand]}")
+        print(f"NEW PLAYER SCORE: {player.score}")
 
         next_player = self.players[self.game_pointer]
         next_state = self.get_state(next_player)
@@ -88,14 +93,18 @@ class ShedGame:
         """
         return self.game_pointer
 
-    def get_state(self, player: ShedPlayer) -> dict:
+    def get_state(self, player: Union[int, ShedPlayer]) -> dict:
+        if isinstance(player, int):
+            player = self.players[player]
+
         """Return player's state as a dict"""
         state = {
-            "legal_actions": self.round.get_legal_actions(player),
+            "legal_actions": self.get_legal_actions(),
             "hand": player.hand,
             "live_deck_size": self.round.get_active_deck_size(),
             "active_deck": self.round.active_deck,
             "player_score": player.score,
+            "current_player": self.game_pointer
         }
 
         return state
@@ -107,49 +116,39 @@ class ShedGame:
         Returns:
             (boolean): True if the game is over
         """
-        return self.round.is_over()
+        return self.round.is_over
 
     def get_payoffs(self) -> List[int]:
         """Return the payoffs of the game
-
+F
         Returns:
             (list): Each entry corresponds to the payoff of one player
         """
         winner = self.round.winner
         if winner is not None:
-            self.payoffs[winner.player_id] = 1
+            self.payoffs[winner.player_id] += 1
         return self.payoffs
 
-    def get_legal_actions(self) -> Dict[int, ShedAction]:
+    def get_legal_actions(self) -> List[ShedAction]:
         current_player = self.players[self.game_pointer]
         legal_actions = self.round.get_legal_actions(current_player)
-        mapped_actions = {}
-        for action in legal_actions:
-            if action == ShedAction.Ace:
-                mapped_actions[0] = ShedAction.Ace
-            if action == ShedAction.Two:
-                mapped_actions[1] = ShedAction.Two
-            if action == ShedAction.Three:
-                mapped_actions[2] = ShedAction.Three
-            if action == ShedAction.Four:
-                mapped_actions[3] = ShedAction.Four
-            if action == ShedAction.Five:
-                mapped_actions[4] = ShedAction.Five
-            if action == ShedAction.Six:
-                mapped_actions[5] = ShedAction.Six
-            if action == ShedAction.Seven:
-                mapped_actions[6] = ShedAction.Seven
-            if action == ShedAction.Eight:
-                mapped_actions[7] = ShedAction.Eight
-            if action == ShedAction.Nine:
-                mapped_actions[8] = ShedAction.Nine
-            if action == ShedAction.Ten:
-                mapped_actions[9] = ShedAction.Ten
-            if action == ShedAction.Jack:
-                mapped_actions[10] = ShedAction.Jack
-            if action == ShedAction.Queen:
-                mapped_actions[11] = ShedAction.Queen
-            if action == ShedAction.King:
-                mapped_actions[12] = ShedAction.King
-
-        return mapped_actions
+        return legal_actions
+    #
+    # def map_key_to_action(self, key: int) -> ShedAction:
+    #     mapped = {
+    #         0: ShedAction.Ace,
+    #         1: ShedAction.Two,
+    #         2: ShedAction.Three,
+    #         3: ShedAction.Four,
+    #         4: ShedAction.Five,
+    #         5: ShedAction.Six,
+    #         6: ShedAction.Seven,
+    #         7: ShedAction.Eight,
+    #         8: ShedAction.Nine,
+    #         9: ShedAction.Ten,
+    #         10: ShedAction.Jack,
+    #         11: ShedAction.Queen,
+    #         12: ShedAction.King,
+    #         13: ShedAction.Pickup,
+    #     }
+    #     return mapped[key]

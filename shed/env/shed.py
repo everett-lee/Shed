@@ -1,13 +1,13 @@
 import json
 import os
-import numpy as np
 from collections import OrderedDict
 
+import numpy as np
 import rlcard
 from rlcard.envs import Env
 
 from shed.game.game import ShedGame
-from shed.game.round import ShedAction
+from shed.game.utils import ShedAction
 
 DEFAULT_GAME_CONFIG = {
     "game_num_players": 2,
@@ -16,6 +16,24 @@ DEFAULT_GAME_CONFIG = {
 
 class ShedEnv(Env):
     """Shed Environment"""
+
+    id_to_action = {
+        0: ShedAction.Ace,
+        1: ShedAction.Two,
+        2: ShedAction.Three,
+        3: ShedAction.Four,
+        4: ShedAction.Five,
+        5: ShedAction.Six,
+        6: ShedAction.Seven,
+        7: ShedAction.Eight,
+        8: ShedAction.Nine,
+        9: ShedAction.Ten,
+        10: ShedAction.Jack,
+        11: ShedAction.Queen,
+        12: ShedAction.King,
+        13: ShedAction.Pickup,
+    }
+    action_to_id = {v: k for k, v in id_to_action.items()}
 
     def __init__(self, config):
         """Initialize the Shed environment"""
@@ -38,7 +56,7 @@ class ShedEnv(Env):
         Returns:
             encoded_action_list (list): return encoded legal action list (from str to int)
         """
-        return self.game.round.get_legal_actions()
+        return self.game.get_legal_actions()
 
     def _extract_state(self, state):
         """Extract the state representation from state dictionary for agent
@@ -53,12 +71,13 @@ class ShedEnv(Env):
         """
         extracted_state = {}
 
-        extracted_state["legal_actions"] = state["legal_actions"]
+        legal_actions = OrderedDict({self.action_to_id[a]: None for a in state['legal_actions']})
+        extracted_state['legal_actions'] = legal_actions
 
         active_deck = state["active_deck"]
         hand = state["hand"]
         cards = active_deck + hand
-        idx = [self.card2index[card] for card in cards]
+        idx = [self.card2index[card.get_index()] for card in cards]
         obs = np.zeros(53)
         obs[idx] = 1
         obs[52] = state["player_score"]
@@ -66,6 +85,8 @@ class ShedEnv(Env):
 
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
+
+        extracted_state['action_record'] = self.action_recorder
 
         return extracted_state
 
@@ -87,10 +108,11 @@ class ShedEnv(Env):
             action (str): action for the game
         """
         legal_actions = self.game.get_legal_actions()
-        if legal_actions[action_id] not in legal_actions:
+        decoded_action = self.id_to_action[action_id]
+        if decoded_action not in legal_actions:
             return ShedAction.Pickup
 
-        return legal_actions[action_id]
+        return decoded_action
 
     def get_perfect_information(self):
         """Get the perfect information of the current state

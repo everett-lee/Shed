@@ -1,5 +1,5 @@
-from rlcard.utils import init_standard_deck
 import numpy as np
+from rlcard.utils import init_standard_deck
 
 from shed.game.player import ShedPlayer
 

@@ -9,23 +9,45 @@ class ShedCard(Card):
         "4": 4,
         "5": 5,
         "6": 6,
+        "7": 7,
         "8": 8,
         "9": 9,
         "J": 11,
         "Q": 12,
         "K": 13,
+        "T": 14,
+        "3": 15,
+        "A": 16
     }
 
     def __init__(self, suit, rank):
         super().__init__(suit, rank)
 
-    def __eq__(self, other):
+    def is_magic_card(self) -> bool:
+        return self.rank in ["A", "3", "T", "7"]
+
+    def is_ace(self):
+        return self.rank == "A"
+
+    def is_ten(self):
+        return self.rank == "T"
+
+    def is_seven(self):
+        return self.rank == "7"
+
+    def is_three(self):
+        return self.rank == "3"
+
+    def __eq__(self, other: "ShedCard"):
         if isinstance(other, Card):
             return self.rank == other.rank
         else:
             return ValueError("Can only compare to other ShedCard")
 
-    def __lt__(self, other):
+    def __lt__(self, other: "ShedCard"):
+        if other.is_magic_card() and not self.is_magic_card():
+            return False
+
         if isinstance(other, Card):
             value_self = self.rank_to_value[self.rank]
             value_other = self.rank_to_value[other.rank]
@@ -33,10 +55,19 @@ class ShedCard(Card):
         else:
             return ValueError("Can only compare to other ShedCard")
 
-    def __gt__(self, other):
+    def __le__(self, other: "ShedCard"):
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __gt__(self, other: "ShedCard"):
+        if self.is_magic_card() and not other.is_magic_card():
+            return True
+
         if isinstance(other, Card):
             value_self = self.rank_to_value[self.rank]
             value_other = self.rank_to_value[other.rank]
             return value_self > value_other
         else:
             return ValueError("Can only compare to other ShedCard")
+
+    def __ge__(self, other: "ShedCard"):
+        return self.__gt__(other) or self.__eq__(other)

@@ -7,14 +7,14 @@ class ShedJudger:
         self.np_random = np_random
         self.rank2score = {
             "A": 5,
-            "2": 0,
+            "2": -1,
             "3": 2,
-            "4": 0,
-            "5": 0,
-            "6": 0,
+            "4": -1,
+            "5": -1,
+            "6": -1,
             "7": 2,
-            "8": 0,
-            "9": 0,
+            "8": -1,
+            "9": -1,
             "T": 2,
             "J": 0,
             "Q": 0,
@@ -26,31 +26,6 @@ class ShedJudger:
         score = self.judge_score(player.hand)
         return score
 
-    def judge_game(self, game, game_pointer):
-        """Judge the winner of the game"""
-
-        if game.players[game_pointer].status == "bust":
-            game.winner["player" + str(game_pointer)] = -1
-        elif game.dealer.status == "bust":
-            game.winner["player" + str(game_pointer)] = 2
-        else:
-            if game.players[game_pointer].score > game.dealer.score:
-                game.winner["player" + str(game_pointer)] = 2
-            elif game.players[game_pointer].score < game.dealer.score:
-                game.winner["player" + str(game_pointer)] = -1
-            else:
-                game.winner["player" + str(game_pointer)] = 1
-
     def judge_score(self, cards):
         """Judge the score of a given cards set"""
-        score = 0
-        count_a = 0
-        for card in cards:
-            card_score = self.rank2score[card.rank]
-            score += card_score
-            if card.rank == "A":
-                count_a += 1
-        while score > 21 and count_a > 0:
-            count_a -= 1
-            score -= 10
-        return score
+        return sum([self.rank2score[card.rank] for card in cards])

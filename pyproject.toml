@@ -13,6 +13,7 @@ rlcard = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.11.0"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core"]

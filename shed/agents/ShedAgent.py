@@ -24,7 +24,11 @@ class HumanAgent(object):
             action (int): The action decided by human
         """
         _print_state(state["raw_obs"], state["action_record"])
-        action = int(input(">> You choose action (integer): "))
+        action_input = input(">> You choose action (integer): ")
+        while not action_input.isdigit():
+            action_input = input(">> You choose action (integer): ")
+
+        action = int(action_input)
         while action < 0 or action >= len(state["legal_actions"]):
             print("Action illegal...")
             action = int(input(">> Re-choose action (integer): "))
@@ -49,6 +53,7 @@ def _print_state(state, action_record):
         state (dict): A dictionary of the raw state
         action_record (list): A list of the historical actions
     """
+
     _action_list = []
     for i in range(1, len(action_record) + 1):
         if action_record[-i][0] == state["current_player"]:
@@ -57,8 +62,8 @@ def _print_state(state, action_record):
     for pair in _action_list:
         print(">> Player", pair[0], "chooses", pair[1])
 
-    print("\n=============== Played Cards ===============")
-    print_card(state["played_cards"])
+    print("\n=============== Active deck ===============")
+    print_card(state["active_deck"])
 
     print("=============  Player", state["current_player"], "- Hand   =============")
     print_card(state["hand"])
@@ -73,4 +78,4 @@ def _print_state(state, action_record):
         )
     )
     print("")
-    print(state)
+

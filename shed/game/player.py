@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 
 from shed.game.card import ShedCard
-from shed.game.round import ShedAction
+from shed.game.utils import ShedAction
 
 
 class ShedPlayer:
@@ -41,6 +41,7 @@ class ShedPlayer:
         card_arr = [
             card for card in self.hand if card.rank == self.action_to_rank[action]
         ]
+
         if not card_arr:
             raise Exception(f"{action} not present in the hand")
         card = card_arr[0]

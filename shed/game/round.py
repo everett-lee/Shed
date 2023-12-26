@@ -1,28 +1,12 @@
 from enum import StrEnum
-from typing import List, Any, Dict
+from typing import Any, Dict, List
+
+import numpy as np
 
 from shed.game.card import ShedCard
 from shed.game.dealer import ShedDealer
-import numpy as np
-
 from shed.game.player import ShedPlayer
-
-
-class ShedAction(StrEnum):
-    Ace = "Ace"
-    Two = "Two"
-    Three = "Three"
-    Four = "Four"
-    Five = "Five"
-    Six = "Six"
-    Seven = "Seven"
-    Eight = "Eight"
-    Nine = "Nine"
-    Ten = "Ten"
-    Jack = "Jack"
-    Queen = "Queen"
-    King = "King"
-    Pickup = "Pickup"
+from shed.game.utils import ShedAction
 
 
 class ShedRound:
@@ -60,8 +44,6 @@ class ShedRound:
         self.active_deck = []
         self.is_over = False
         self.winner = None
-        self.lower_than_active = False
-        self.see_through_active = False
 
     def handle_action(self, player: ShedPlayer, action: ShedAction):
         if action == ShedAction.Pickup:
@@ -71,47 +53,38 @@ class ShedRound:
         else:
             card = player.play_card(action)
             self.play_card(card)
-            self.active_deck.append(card)
             self.dealer.deal_card(player)
 
-    def can_beat_ace(self, card: ShedCard) -> bool:
-        return card.suit in ["A", "3", "7"]
-
     def is_legal_card(self, card: ShedCard) -> bool:
-        if not self.active_deck or card.suit == "A":
+        card = ShedCard(card.suit, card.rank)
+        threes_removed = [c for c in self.active_deck if c.rank != "3"]
+
+        if not threes_removed or card.is_magic_card():
             return True
-
-        if self.see_through_active:
-            # No cards below the 3
-            if len(self.active_deck) <= 1:
-                return True
-            top_card = self.active_deck[-2]
         else:
-            top_card = self.active_deck[-1]
+            top_card = threes_removed[-1]
 
-        if top_card.suit == "A":
-            return self.can_beat_ace(card)
+        top_card = ShedCard(top_card.suit, top_card.rank)
 
-        if self.lower_than_active:
+        if top_card.is_ace():
+            return card.is_magic_card()
+
+        if top_card.is_seven():
             return card <= top_card
 
         return card >= top_card
 
     def play_card(self, card: ShedCard):
-        if card.rank == "3":
-            self.see_through_active = True
-        elif card.rank == "7":
-            self.lower_than_active = True
-        elif card.rank == "T":
+        card = ShedCard(card.suit, card.rank)
+
+        if card.is_ten():
             # Ten burns the deck
             self.active_deck = []
-        elif self.is_legal_card(card):
+
+        elif self.is_legal_card(card) and not card.is_ten():
             self.active_deck.append(card)
         else:
             raise ValueError(f"Card {card} is not a valid option")
-
-        self.see_through_active = False
-        self.lower_than_active = False
 
     def proceed_round(self, players: List[ShedPlayer], action: ShedAction) -> int:
         """Call other Classes" functions to keep one round running"""
@@ -128,7 +101,7 @@ class ShedRound:
 
     # TODO handle no legal actions leaves you with pickup
     def get_legal_actions(self, player: ShedPlayer) -> List[ShedAction]:
-        playable_cards = [card for card in player.hand if self.is_legal_card(card)]
+        playable_cards = sorted([ShedCard(card.suit, card.rank) for card in player.hand if self.is_legal_card(card)])
         return [self.rank_to_action[card.rank] for card in playable_cards] + [
             ShedAction.Pickup
         ]
