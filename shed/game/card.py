@@ -17,7 +17,7 @@ class ShedCard(Card):
         "K": 13,
         "T": 14,
         "3": 15,
-        "A": 16
+        "A": 16,
     }
 
     def __init__(self, suit, rank):

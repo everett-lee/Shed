@@ -67,7 +67,7 @@ def _print_state(state, action_record):
     print_card(state["active_deck"])
 
     print("=============  Player", state["current_player"], "- Hand   =============")
-    card_chunks = [state["hand"][i:i + 10] for i in range(0, len(state["hand"]), 10)]
+    card_chunks = [state["hand"][i : i + 10] for i in range(0, len(state["hand"]), 10)]
     for cards in card_chunks:
         print_card(cards)
 
@@ -81,4 +81,3 @@ def _print_state(state, action_record):
         )
     )
     print("")
-

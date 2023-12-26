@@ -44,25 +44,28 @@ class ShedRound:
         self.active_deck = []
         self.is_over = False
         self.winner = None
+        self.min_hand_size = 5
 
-    def handle_action(self, player: ShedPlayer, action: ShedAction):
+    def handle_action(self, player: ShedPlayer, action: ShedAction) -> bool:
         if action == ShedAction.Pickup:
             player.take_cards(self.active_deck)
             self.active_deck = []
 
         else:
             card = player.play_card(action)
-            self.play_card(card)
-            self.dealer.deal_card(player)
+            ten_played = self.play_card(card)
+            if len(player.hand) < self.min_hand_size:
+                self.dealer.deal_card(player)
+            return ten_played
 
     def is_legal_card(self, card: ShedCard) -> bool:
         card = ShedCard(card.suit, card.rank)
         threes_removed = [c for c in self.active_deck if c.rank != "3"]
 
         if not threes_removed or card.is_magic_card():
-            print("^"*100)
+            print("^" * 100)
             print("DEALING WITH MAGIC OR EMPTY")
-            print("^"*100)
+            print("^" * 100)
             return True
         else:
             top_card = threes_removed[-1]
@@ -73,7 +76,7 @@ class ShedRound:
             return card.is_magic_card()
 
         if top_card.is_seven():
-            print("%"*100)
+            print("%" * 100)
             print("DEALING WITH SEVEN")
             print(f"COMPARING {card.rank} with TOP CARD {top_card.rank}")
             print(f"RESULT {card <= top_card}")
@@ -81,47 +84,47 @@ class ShedRound:
 
         return card >= top_card
 
-    def play_card(self, card: ShedCard):
+    def play_card(self, card: ShedCard) -> bool:
         card = ShedCard(card.suit, card.rank)
 
         if card.is_ten():
             # Ten burns the deck
             self.active_deck = []
+            return True
 
         elif self.is_legal_card(card) and not card.is_ten():
             self.active_deck.append(card)
+            return False
+
         else:
             raise ValueError(f"Card {card} is not a valid option")
 
     def proceed_round(self, players: List[ShedPlayer], action: ShedAction) -> int:
         """Call other Classes" functions to keep one round running"""
         player = players[self.game_pointer]
-        self.handle_action(player, action)
+        ten_played = self.handle_action(player, action)
 
         if not player.hand:
             self.is_over = True
             self.winner = player
 
-        self.game_pointer = (self.game_pointer + 1) % self.num_players
+        # When 10 played / deck burned player goes again
+        if not ten_played:
+            self.game_pointer = (self.game_pointer + 1) % self.num_players
 
         return self.game_pointer
 
     # TODO handle no legal actions leaves you with pickup
     def get_legal_actions(self, player: ShedPlayer) -> List[ShedAction]:
-        print(f"EXAMINING HAND {[c.rank for c in player.hand]}")
         typed_cards = [ShedCard(card.suit, card.rank) for card in player.hand]
-        print(f"AND TYPED {[c.rank for c in player.hand]}")
         playable_cards = [card for card in typed_cards if self.is_legal_card(card)]
-        print(f"AFTER: {[c.rank for c in playable_cards]}")
-        full_actions = [self.rank_to_action[card.rank] for card in playable_cards] + [
-            ShedAction.Pickup
-        ]
+
+        full_actions = [self.rank_to_action[card.rank] for card in playable_cards]
+        can_pickup = len(self.active_deck) > 0
+        if can_pickup:
+            full_actions = full_actions + [ShedAction.Pickup]
         unique_actions = list(set(full_actions))
-        print("*"*100)
-        print("FULL AND UNIQUE ACTIONS")
-        print(sorted((full_actions)))
-        print(sorted((unique_actions)))
-        print("*"*100)
+
         return unique_actions
 
     def is_over(self) -> bool:

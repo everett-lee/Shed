@@ -71,8 +71,10 @@ class ShedEnv(Env):
         """
         extracted_state = {}
 
-        legal_actions = OrderedDict({self.action_to_id[a]: None for a in state['legal_actions']})
-        extracted_state['legal_actions'] = legal_actions
+        legal_actions = OrderedDict(
+            {self.action_to_id[a]: None for a in state["legal_actions"]}
+        )
+        extracted_state["legal_actions"] = legal_actions
 
         active_deck = state["active_deck"]
         hand = state["hand"]
@@ -86,7 +88,7 @@ class ShedEnv(Env):
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
 
-        extracted_state['action_record'] = self.action_recorder
+        extracted_state["action_record"] = self.action_recorder
 
         return extracted_state
 

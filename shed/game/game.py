@@ -9,7 +9,6 @@ from shed.game.round import ShedRound
 from shed.game.utils import ShedAction
 
 
-
 class ShedGame:
     def __init__(self, num_players: int = 2):
         """Initialize the Game"""
@@ -104,7 +103,7 @@ class ShedGame:
             "live_deck_size": self.round.get_active_deck_size(),
             "active_deck": self.round.active_deck,
             "player_score": player.score,
-            "current_player": self.game_pointer
+            "current_player": self.game_pointer,
         }
 
         return state
@@ -120,9 +119,9 @@ class ShedGame:
 
     def get_payoffs(self) -> List[int]:
         """Return the payoffs of the game
-F
-        Returns:
-            (list): Each entry corresponds to the payoff of one player
+        F
+                Returns:
+                    (list): Each entry corresponds to the payoff of one player
         """
         winner = self.round.winner
         if winner is not None:
@@ -133,6 +132,7 @@ F
         current_player = self.players[self.game_pointer]
         legal_actions = self.round.get_legal_actions(current_player)
         return legal_actions
+
     #
     # def map_key_to_action(self, key: int) -> ShedAction:
     #     mapped = {
