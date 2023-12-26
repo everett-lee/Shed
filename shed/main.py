@@ -1,8 +1,8 @@
 from rlcard.envs.registration import register
 from rlcard.utils import print_card
 
-from shed.agents.ShedAgent import HumanAgent
 from shed.agents.RandomAgent import RandomAgent
+from shed.agents.ShedAgent import HumanAgent
 
 register(
     env_id="shed",
@@ -16,7 +16,7 @@ human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
 env.set_agents(
     [
-        human_agent,
+        random_agent,
         random_agent,
     ]
 )

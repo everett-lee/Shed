@@ -63,9 +63,6 @@ class ShedRound:
         threes_removed = [c for c in self.active_deck if c.rank != "3"]
 
         if not threes_removed or card.is_magic_card():
-            print("^" * 100)
-            print("DEALING WITH MAGIC OR EMPTY")
-            print("^" * 100)
             return True
         else:
             top_card = threes_removed[-1]
@@ -76,10 +73,6 @@ class ShedRound:
             return card.is_magic_card()
 
         if top_card.is_seven():
-            print("%" * 100)
-            print("DEALING WITH SEVEN")
-            print(f"COMPARING {card.rank} with TOP CARD {top_card.rank}")
-            print(f"RESULT {card <= top_card}")
             return card <= top_card
 
         return card >= top_card
