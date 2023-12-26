@@ -11,6 +11,7 @@ pydantic = "^2.5.1"
 rlcard = "^1.2.0"
 torch = "^2.1.2"
 logzero = "^1.7.0"
+matplotlib = "^3.8.2"
 
 
 [tool.poetry.group.dev.dependencies]
