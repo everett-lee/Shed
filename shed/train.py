@@ -27,6 +27,7 @@ register(
 def train():
     # Check whether gpu is available
     device = get_device()
+    print(f"DEVICE: {device}")
 
     # Seed numpy, torch, random
     set_seed(SEED)
@@ -86,3 +87,6 @@ def train():
     save_path = os.path.join(LOG_DIR, "model.pth")
     torch.save(agent, save_path)
     print("Model saved in", save_path)
+
+if __name__ == "__main__":
+    train()
