@@ -11,7 +11,10 @@ register(
 
 import rlcard
 
-env = rlcard.make("shed")
+env = rlcard.make("shed", config={
+            "debug_mode": False,
+        }
+)
 human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
 env.set_agents(

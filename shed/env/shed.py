@@ -39,7 +39,8 @@ class ShedEnv(Env):
         """Initialize the Shed environment"""
         self.name = "shed"
         self.default_game_config = DEFAULT_GAME_CONFIG
-        self.game = ShedGame()
+        config = config if config else DEFAULT_GAME_CONFIG
+        self.game = ShedGame(config)
         super().__init__(config)
         # A deck for each player's hand plus the live deck
         self.state_shape = [[53] for _ in range(self.num_players)]

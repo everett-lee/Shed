@@ -7,12 +7,14 @@ from shed.game.judger import ShedJudger
 from shed.game.player import ShedPlayer
 from shed.game.round import ShedRound
 from shed.game.utils import ShedAction
+from logzero import logger
 
 
 class ShedGame:
-    def __init__(self, num_players: int = 2):
+    def __init__(self, config: dict, num_players: int = 2):
         """Initialize the Game"""
         self.allow_step_back = False
+        self.debug_mode = False
         self.np_random = np.random.RandomState()
         self.num_players = num_players
         self.num_starting_cards = 5
@@ -22,9 +24,18 @@ class ShedGame:
         self.players = []
         self.payoffs = [0 for _ in range(self.num_players)]
 
+        self.configure(config)
+
     def configure(self, game_config) -> None:
         """Specifiy some game specific parameters, such as number of players"""
-        self.num_players = game_config["game_num_players"]
+
+        print("*"*100)
+        print("CONFIGURING WITH")
+        print(game_config)
+        if "debug_mode" in game_config:
+            self.debug_mode = game_config["debug_mode"]
+        if "game_num_players" in game_config:
+            self.num_players = game_config["game_num_players"]
 
     def init_game(self) -> tuple:
         """Initialilze the game"""
@@ -66,8 +77,9 @@ class ShedGame:
         self.game_pointer = self.round.proceed_round(self.players, action)
         player = self.players[self.game_pointer]
         player.score = self.judger.judge_round(player)
-        print(f"PLAYER HAND: {[c.rank for c in player.hand]}")
-        print(f"NEW PLAYER SCORE: {player.score}")
+        if self.debug_mode:
+            logger.info(f"Player hand: {[c.rank for c in player.hand]}")
+            logger.info(f"New player score: {player.score}")
 
         next_player = self.players[self.game_pointer]
         next_state = self.get_state(next_player)
