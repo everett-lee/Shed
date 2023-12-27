@@ -11,11 +11,11 @@ from rlcard.utils import (Logger, get_device, plot_curve, print_card,
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
-SEED = 42
+SEED = 1337
 ALGORITHM = "dqn"
 NUM_EPISODES = 4000  # 5000
 EVALUATE_EVERY = 100  # 100
-NUM_EVAL_GAMES = 1500  # 2000
+NUM_EVAL_GAMES = 200  # 2000
 LOG_DIR = "./logs"
 
 register(
@@ -28,6 +28,7 @@ def train():
     # Check whether gpu is available
     device = get_device()
     print(f"DEVICE: {device}")
+
 
     # Seed numpy, torch, random
     set_seed(SEED)
@@ -55,6 +56,7 @@ def train():
     # Start training
     with Logger(LOG_DIR) as logger:
         for episode in range(NUM_EPISODES):
+            logger.log(f"\nStarting episode {episode}")
             # Generate data from the environment
             trajectories, payoffs = env.run(is_training=True)
 
@@ -68,12 +70,13 @@ def train():
                 agent.feed(ts)
 
             # Evaluate the performance. Play with random agents.
+            number_eval_games = NUM_EVAL_GAMES if episode > 0 else 20
             if episode % EVALUATE_EVERY == 0:
                 logger.log_performance(
                     episode,
                     tournament(
                         env,
-                        NUM_EVAL_GAMES,
+                        number_eval_games,
                     )[0],
                 )
 
