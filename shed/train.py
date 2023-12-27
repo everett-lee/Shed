@@ -14,8 +14,8 @@ from shed.agents.ShedAgent import HumanAgent
 SEED = 1337
 ALGORITHM = "dqn"
 NUM_EPISODES = 4000  # 5000
-EVALUATE_EVERY = 100  # 100
-NUM_EVAL_GAMES = 200  # 2000
+EVALUATE_EVERY = 50  # 100
+NUM_EVAL_GAMES = 20  # 2000
 LOG_DIR = "./logs"
 
 register(
@@ -70,13 +70,12 @@ def train():
                 agent.feed(ts)
 
             # Evaluate the performance. Play with random agents.
-            number_eval_games = NUM_EVAL_GAMES if episode > 0 else 20
             if episode % EVALUATE_EVERY == 0:
                 logger.log_performance(
                     episode,
                     tournament(
                         env,
-                        number_eval_games,
+                        NUM_EVAL_GAMES,
                     )[0],
                 )
 
