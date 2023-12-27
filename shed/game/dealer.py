@@ -8,7 +8,6 @@ class ShedDealer:
     def __init__(self, np_random: np.random):
         """Initialize a Shed dealer class"""
         self.np_random = np_random
-        self.num_decks = 1
         self.unplayed_deck = init_standard_deck()
         self.shuffle()
 

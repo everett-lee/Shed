@@ -6,19 +6,19 @@ class ShedJudger:
         """Initialize a judger class"""
         self.np_random = np_random
         self.rank2score = {
-            "A": 5,
-            "2": -1,
-            "3": 2,
-            "4": -1,
-            "5": -1,
-            "6": -1,
-            "7": 2,
-            "8": -1,
-            "9": -1,
-            "T": 2,
-            "J": 0,
-            "Q": 0,
-            "K": 0,
+            "A": 2,
+            "2": -2,
+            "3": 1,
+            "4": -2,
+            "5": -2,
+            "6": -2,
+            "7": 1,
+            "8": -2,
+            "9": -2,
+            "T": 1,
+            "J": -2,
+            "Q": -1,
+            "K": -1,
         }
 
     def judge_round(self, player: ShedPlayer):
@@ -28,4 +28,4 @@ class ShedJudger:
 
     def judge_score(self, cards):
         """Judge the score of a given cards set"""
-        return sum([self.rank2score[card.rank] for card in cards])
+        return sum([self.rank2score[card.rank] for card in cards]) - len(cards)

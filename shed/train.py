@@ -13,9 +13,9 @@ from shed.agents.ShedAgent import HumanAgent
 
 SEED = 42
 ALGORITHM = "dqn"
-NUM_EPISODES = 500 #5000
-EVALUATE_EVERY = 100
-NUM_EVAL_GAMES = 2000
+NUM_EPISODES = 50 #5000
+EVALUATE_EVERY = 10 # 100
+NUM_EVAL_GAMES = 10 # 2000
 LOG_DIR = "./logs"
 
 register(

@@ -1,22 +1,42 @@
+import os
+
+from rlcard.agents import CFRAgent
 from rlcard.envs.registration import register
-from rlcard.utils import print_card
+from rlcard.utils import print_card, get_device
 
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
+
+import rlcard
+from rlcard import models
 
 register(
     env_id="shed",
     entry_point="shed.env.shed:ShedEnv",
 )
 
-import rlcard
 
 env = rlcard.make("shed", config={
-            "debug_mode": False,
+            "debug_mode": True,
         }
 )
+
 human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
+
+
+# def load_model(model_path, env=None, position=None, device=None):
+#     import torch
+#     agent = torch.load(model_path, map_location=device)
+#     agent.set_device(device)
+#
+#     return agent
+#
+#
+# device = get_device()
+#
+# trained_agent = load_model(model_path="./logs/model.pth", device=device)
+
 env.set_agents(
     [
         random_agent,

@@ -42,8 +42,8 @@ class ShedEnv(Env):
         config = config if config else DEFAULT_GAME_CONFIG
         self.game = ShedGame(config)
         super().__init__(config)
-        # A deck for each player's hand plus the live deck
-        self.state_shape = [[53] for _ in range(self.num_players)]
+        # A deck for each player's hand plus the live deck plus score TODO handle jokers
+        self.state_shape = [[105] for _ in range(self.num_players)]
         self.action_shape = [None for _ in range(self.num_players)]
 
         with open(
@@ -60,16 +60,7 @@ class ShedEnv(Env):
         return self.game.get_legal_actions()
 
     def _extract_state(self, state):
-        """Extract the state representation from state dictionary for agent
-
-        Note: Currently the use the hand cards and the public cards. TODO: encode the states
-
-        Args:
-            state (dict): Original state from the game
-
-        Returns:
-            observation (list): combine the player's score and dealer's observable score for observation
-        """
+        """Extract the state representation from state dictionary for agent """
         extracted_state = {}
 
         legal_actions = OrderedDict(
@@ -79,11 +70,15 @@ class ShedEnv(Env):
 
         active_deck = state["active_deck"]
         hand = state["hand"]
-        cards = active_deck + hand
-        idx = [self.card2index[card.get_index()] for card in cards]
-        obs = np.zeros(53)
-        obs[idx] = 1
-        obs[52] = state["player_score"]
+
+        obs = np.zeros(105)
+        hand_idx = [self.card2index[card.get_index()] for card in hand]
+        obs[hand_idx] = 1
+
+        active_deck_idx = [self.card2index[card.get_index()] + 51 for card in active_deck]
+        obs[active_deck_idx] = 1
+
+        obs[104] = state["player_score"]
         extracted_state["obs"] = obs
 
         extracted_state["raw_obs"] = state
