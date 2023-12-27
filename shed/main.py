@@ -1,14 +1,13 @@
 import os
 
+import rlcard
+from rlcard import models
 from rlcard.agents import CFRAgent
 from rlcard.envs.registration import register
-from rlcard.utils import print_card, get_device
+from rlcard.utils import get_device, print_card
 
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
-
-import rlcard
-from rlcard import models
 
 register(
     env_id="shed",
@@ -16,9 +15,11 @@ register(
 )
 
 
-env = rlcard.make("shed", config={
-            "debug_mode": True,
-        }
+env = rlcard.make(
+    "shed",
+    config={
+        "debug_mode": True,
+    },
 )
 
 human_agent = HumanAgent(num_actions=env.num_actions)

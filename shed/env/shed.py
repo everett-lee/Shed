@@ -60,7 +60,7 @@ class ShedEnv(Env):
         return self.game.get_legal_actions()
 
     def _extract_state(self, state):
-        """Extract the state representation from state dictionary for agent """
+        """Extract the state representation from state dictionary for agent"""
         extracted_state = {}
 
         legal_actions = OrderedDict(
@@ -75,7 +75,9 @@ class ShedEnv(Env):
         hand_idx = [self.card2index[card.get_index()] for card in hand]
         obs[hand_idx] = 1
 
-        active_deck_idx = [self.card2index[card.get_index()] + 51 for card in active_deck]
+        active_deck_idx = [
+            self.card2index[card.get_index()] + 51 for card in active_deck
+        ]
         obs[active_deck_idx] = 1
 
         obs[104] = state["player_score"]

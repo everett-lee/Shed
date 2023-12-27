@@ -1,4 +1,3 @@
-from enum import StrEnum
 from typing import Any, Dict, List
 
 import numpy as np
@@ -93,7 +92,7 @@ class ShedRound:
             raise ValueError(f"Card {card} is not a valid option")
 
     def proceed_round(self, players: List[ShedPlayer], action: ShedAction) -> int:
-        """Call other Classes" functions to keep one round running"""
+        """Call other Classes' functions to keep one round running"""
         player = players[self.game_pointer]
         ten_played = self.handle_action(player, action)
 
@@ -130,7 +129,7 @@ class ShedRound:
         return False
 
     def get_state(self, players: List[ShedPlayer], game_pointer: int) -> Dict[str, Any]:
-        """Get player"s state"""
+        """Get player's state"""
         state = {}
         player = players[game_pointer]
         state["hand"] = player.hand

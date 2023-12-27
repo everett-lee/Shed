@@ -1,15 +1,16 @@
-from typing import Dict, List, Union, Any, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
+from logzero import logger
 
 from shed.game.dealer import ShedDealer
 from shed.game.judger import ShedJudger
 from shed.game.player import ShedPlayer
 from shed.game.round import ShedRound
 from shed.game.utils import ShedAction
-from logzero import logger
 
 StateDict = Dict[str, Any]
+
 
 class ShedGame:
     def __init__(self, config: dict, num_players: int = 2):
@@ -65,7 +66,7 @@ class ShedGame:
         return self.get_state(first_player), game_pointer
 
     def step(self, action: ShedAction) -> Tuple[StateDict, int]:
-        """Get the next state """
+        """Get the next state"""
 
         # Proceed to the next round
         self.game_pointer = self.round.proceed_round(self.players, action)
@@ -91,7 +92,7 @@ class ShedGame:
         return 14
 
     def get_player_id(self):
-        """Return the current player's id """
+        """Return the current player's id"""
         return self.game_pointer
 
     def get_state(self, player: Union[int, ShedPlayer]) -> StateDict:
@@ -116,7 +117,7 @@ class ShedGame:
         return self.round.is_over
 
     def get_payoffs(self) -> List[int]:
-        """Return the payoffs of the game """
+        """Return the payoffs of the game"""
         winner = self.round.winner
         if winner is not None:
             # TODO make nicer

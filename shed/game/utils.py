@@ -1,7 +1,7 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class ShedAction(StrEnum):
+class ShedAction(str, Enum):
     Ace = "Ace"
     Two = "Two"
     Three = "Three"

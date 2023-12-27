@@ -13,9 +13,9 @@ from shed.agents.ShedAgent import HumanAgent
 
 SEED = 42
 ALGORITHM = "dqn"
-NUM_EPISODES = 50 #5000
-EVALUATE_EVERY = 10 # 100
-NUM_EVAL_GAMES = 10 # 2000
+NUM_EPISODES = 50  # 5000
+EVALUATE_EVERY = 10  # 100
+NUM_EVAL_GAMES = 10  # 2000
 LOG_DIR = "./logs"
 
 register(
@@ -87,6 +87,7 @@ def train():
     save_path = os.path.join(LOG_DIR, "model.pth")
     torch.save(agent, save_path)
     print("Model saved in", save_path)
+
 
 if __name__ == "__main__":
     train()
