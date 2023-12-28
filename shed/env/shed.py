@@ -43,7 +43,7 @@ class ShedEnv(Env):
         self.game = ShedGame(config)
         super().__init__(config)
         # A deck for each player's hand plus the live deck plus score TODO handle jokers
-        self.state_shape = [[105] for _ in range(self.num_players)]
+        self.state_shape = [[56] for _ in range(self.num_players)]
         self.action_shape = [None for _ in range(self.num_players)]
 
         with open(
@@ -70,17 +70,19 @@ class ShedEnv(Env):
 
         active_deck = state["active_deck"]
         hand = state["hand"]
+        top_card = state["top_card"]
+        position = state["position"]
 
-        obs = np.zeros(105)
+        obs = np.zeros(56)
         hand_idx = [self.card2index[card.get_index()] for card in hand]
         obs[hand_idx] = 1
 
-        active_deck_idx = [
-            self.card2index[card.get_index()] + 51 for card in active_deck
-        ]
-        obs[active_deck_idx] = 1
+        top_card_idx = self.card2index[top_card.get_index()] if top_card else -1
+        obs[52] = top_card_idx
+        obs[53] = len(active_deck)
+        obs[54] = len(hand)
+        obs[55] = position
 
-        obs[104] = state["player_score"]
         extracted_state["obs"] = obs
 
         extracted_state["raw_obs"] = state

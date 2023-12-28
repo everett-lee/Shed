@@ -106,7 +106,8 @@ class ShedGame:
             "hand": player.hand,
             "live_deck_size": self.round.get_active_deck_size(),
             "active_deck": self.round.active_deck,
-            "player_score": player.score,
+            "top_card": self.round.get_top_card(),
+            "position": self.get_position(player, self.players),
             "current_player": self.game_pointer,
         }
 
@@ -115,6 +116,11 @@ class ShedGame:
         Check if the game is over
         """
         return self.round.is_over
+
+    def get_position(self, player: ShedPlayer, players: List[ShedPlayer]):
+        sorted_by_hand = sorted(players, key=lambda p: len(p.hand))
+        ids = [p.player_id for p in sorted_by_hand]
+        return ids.index(player.player_id)
 
     def get_payoffs(self) -> List[int]:
         """Return the payoffs of the game"""

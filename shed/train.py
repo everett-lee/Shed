@@ -13,9 +13,9 @@ from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
 ALGORITHM = "dqn"
-NUM_EPISODES = 4000  # 5000
+NUM_EPISODES = 1000  # 5000
 EVALUATE_EVERY = 50  # 100
-NUM_EVAL_GAMES = 20  # 2000
+NUM_EVAL_GAMES = 10  # 2000
 LOG_DIR = "./logs"
 
 register(
@@ -69,14 +69,15 @@ def train():
             for ts in trajectories[0]:
                 agent.feed(ts)
 
+            tourn_res = tournament(
+                        env,
+                        NUM_EVAL_GAMES,
+            )
             # Evaluate the performance. Play with random agents.
             if episode % EVALUATE_EVERY == 0:
                 logger.log_performance(
                     episode,
-                    tournament(
-                        env,
-                        NUM_EVAL_GAMES,
-                    )[0],
+                    tourn_res[0]
                 )
 
         # Get the paths

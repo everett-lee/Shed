@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
+from rlcard.games.base import Card
 
 from shed.game.card import ShedCard
 from shed.game.dealer import ShedDealer
@@ -57,9 +58,12 @@ class ShedRound:
                 self.dealer.deal_card(player)
             return ten_played
 
+    def _remove_threes(self, cards: List[ShedCard]) -> List[ShedCard]:
+        return [c for c in cards if c.rank != "3"]
+
     def is_legal_card(self, card: ShedCard) -> bool:
         card = ShedCard(card.suit, card.rank)
-        threes_removed = [c for c in self.active_deck if c.rank != "3"]
+        threes_removed = self._remove_threes(self.active_deck)
 
         if not threes_removed or card.is_magic_card():
             return True
@@ -128,16 +132,21 @@ class ShedRound:
 
         return False
 
+    def get_top_card(self) -> Optional[Card]:
+        no_threes = self._remove_threes(self.active_deck)
+        return no_threes[-1] if len(no_threes) else None
+
     def get_state(self, players: List[ShedPlayer], game_pointer: int) -> Dict[str, Any]:
         """Get player's state"""
         state = {}
-        player = players[game_pointer]
-        state["hand"] = player.hand
+        active_player = players[game_pointer]
+        state["hand"] = active_player.hand
         state["played_cards"] = self.active_deck
-        state["legal_actions"] = self.get_legal_actions(player)
-        state["num_cards"] = []
+        state["legal_actions"] = self.get_legal_actions(active_player)
+        state["other_hands"] = []
         for player in players:
-            state["num_cards"].append(len(player.hand))
+            if player.player_id != active_player.player_id:
+                state["num_cards"].append(player.hand)
         return state
 
     def get_active_deck_size(self) -> int:
