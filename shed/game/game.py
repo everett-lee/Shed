@@ -49,7 +49,6 @@ class ShedGame:
         for player in self.players:
             for _ in range(self.num_starting_cards):
                 self.dealer.deal_card(player)
-            player.score = self.judger.judge_round(player)
 
         # Init the round
         self.round = ShedRound(self.dealer, self.players, self.np_random)
@@ -71,13 +70,19 @@ class ShedGame:
         # Proceed to the next round
         self.game_pointer = self.round.proceed_round(self.players, action)
         player = self.players[self.game_pointer]
-        player.score = self.judger.judge_round(player)
         if self.debug_mode:
             logger.info(f"Player hand: {[c.rank for c in player.hand]}")
             logger.info(f"New player score: {player.score}")
 
         next_player = self.players[self.game_pointer]
         next_state = self.get_state(next_player)
+
+
+        # TODO remove
+        print("Round ended")
+        print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
+        print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
+        print()
 
         return next_state, self.game_pointer
 

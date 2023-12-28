@@ -27,7 +27,7 @@ class ShedRound:
     }
 
     def __init__(
-        self, dealer: ShedDealer, players: List[ShedPlayer], np_random: np.random
+            self, dealer: ShedDealer, players: List[ShedPlayer], np_random: np.random
     ):
         """Initialize the round class
 
@@ -80,6 +80,12 @@ class ShedRound:
 
         return card >= top_card
 
+    def is_quad(self):
+        without_threes = self._remove_threes(self.active_deck)
+        ranks = [c.rank for c in without_threes]
+        # final four ranks are all the same
+        return len(without_threes) >= 4 and len(set(ranks[-4:])) == 1
+
     def play_card(self, card: ShedCard) -> bool:
         card = ShedCard(card.suit, card.rank)
 
@@ -88,12 +94,14 @@ class ShedRound:
             self.active_deck = []
             return True
 
-        elif self.is_legal_card(card) and not card.is_ten():
-            self.active_deck.append(card)
-            return False
+        self.active_deck.append(card)
 
-        else:
-            raise ValueError(f"Card {card} is not a valid option")
+        if self.is_quad():
+            # Quads burns the deck
+            self.active_deck = []
+            return True
+
+        return False
 
     def proceed_round(self, players: List[ShedPlayer], action: ShedAction) -> int:
         """Call other Classes' functions to keep one round running"""

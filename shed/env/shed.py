@@ -98,6 +98,8 @@ class ShedEnv(Env):
         Returns:
            payoffs (list): list of payoffs
         """
+        # TODO remove
+        print(f"Payoffs: {self.game.get_payoffs()}")
         return np.array(self.game.get_payoffs())
 
     def _decode_action(self, action_id: int) -> ShedAction:
