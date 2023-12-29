@@ -106,12 +106,14 @@ class ShedGame:
         if isinstance(player, int):
             player = self.players[player]
 
+        top_card, top_card_count = self.round.get_top_card_and_count()
         return {
             "legal_actions": self.get_legal_actions(),
             "hand": player.hand,
             "live_deck_size": self.round.get_active_deck_size(),
             "active_deck": self.round.active_deck,
-            "top_card": self.round.get_top_card(),
+            "top_card": top_card,
+            "top_card_count": top_card_count,
             "position": self.get_position(player, self.players),
             "current_player": self.game_pointer,
         }

@@ -43,7 +43,7 @@ class ShedEnv(Env):
         self.game = ShedGame(config)
         super().__init__(config)
         # A deck for each player's hand plus the live deck plus score TODO handle jokers
-        self.state_shape = [[56] for _ in range(self.num_players)]
+        self.state_shape = [[57] for _ in range(self.num_players)]
         self.action_shape = [None for _ in range(self.num_players)]
 
         with open(
@@ -71,19 +71,30 @@ class ShedEnv(Env):
         active_deck = state["active_deck"]
         hand = state["hand"]
         top_card = state["top_card"]
+        top_card_count = state["top_card_count"]
         position = state["position"]
 
-        obs = np.zeros(56)
+        obs = np.zeros(57)
         hand_idx = [self.card2index[card.get_index()] for card in hand]
         obs[hand_idx] = 1
 
         top_card_idx = self.card2index[top_card.get_index()] if top_card else -1
         obs[52] = top_card_idx
-        obs[53] = len(active_deck)
-        obs[54] = len(hand)
-        obs[55] = position
+        obs[53] = top_card_count
+        obs[54] = len(active_deck)
+        obs[55] = len(hand)
+        obs[56] = position
 
         extracted_state["obs"] = obs
+
+        print("*"*100)
+        print(obs)
+        print(f"HAND: {obs[0:52]}")
+        print(f"TOP CARD: {obs[52]}, {top_card}")
+        print(f"TOP CARD COUNT: {obs[53]}")
+        print(f"ACTIVE DECK SIZE: {obs[54]}")
+        print(f"HAND SIZE: {obs[55]}")
+        print(f"POSITION: {obs[56]}")
 
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
@@ -98,9 +109,10 @@ class ShedEnv(Env):
         Returns:
            payoffs (list): list of payoffs
         """
+        payoffs = self.game.get_payoffs()
         # TODO remove
-        print(f"Payoffs: {self.game.get_payoffs()}")
-        return np.array(self.game.get_payoffs())
+        print(f"Payoffs: {payoffs}")
+        return np.array(payoffs)
 
     def _decode_action(self, action_id: int) -> ShedAction:
         """Decode the action for applying to the game

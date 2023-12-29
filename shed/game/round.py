@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from rlcard.games.base import Card
@@ -140,9 +140,26 @@ class ShedRound:
 
         return False
 
-    def get_top_card(self) -> Optional[Card]:
+    def get_top_card_and_count(self) -> Tuple[Optional[Card], int]:
+        #TODO return repeated count, e.g. [2, 4, 5, 3, 5, 5] = 3
         no_threes = self._remove_threes(self.active_deck)
-        return no_threes[-1] if len(no_threes) else None
+        if not len(no_threes):
+            return None, 0
+        top_card = no_threes[-1]
+        top_card_count = 0
+        deck_size = len(no_threes)
+
+        while deck_size > top_card_count:
+            next_top_card = no_threes[- (top_card_count + 1)]
+            if next_top_card.rank == top_card.rank:
+                top_card_count += 1
+            else:
+                break
+
+        return top_card, top_card_count
+
+
+
 
     def get_state(self, players: List[ShedPlayer], game_pointer: int) -> Dict[str, Any]:
         """Get player's state"""
