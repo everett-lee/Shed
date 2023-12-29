@@ -21,3 +21,6 @@ class ShedDealer:
         """Distribute one card to the player"""
         if len(self.unplayed_deck):
             player.hand.append(self.unplayed_deck.pop())
+
+    def get_unplayed_deck_size(self) -> int:
+        return len(self.unplayed_deck)

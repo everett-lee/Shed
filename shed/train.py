@@ -12,7 +12,7 @@ from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
-ALGORITHM = "nfsp"
+ALGORITHM = "dqn"
 NUM_EPISODES = 5000  # 5000
 EVALUATE_EVERY = 50  # 100
 NUM_EVAL_GAMES = 15  # 2000
@@ -48,9 +48,8 @@ def train():
             state_shape=env.state_shape[0],
             mlp_layers=[64, 64],
             device=device,
-            replay_memory_init_size=1000,
-            batch_size=512,
-            replay_memory_size=50000
+            replay_memory_init_size=256,
+            batch_size=128,
         )
     elif ALGORITHM == "nfsp":
         agent = NFSPAgent(

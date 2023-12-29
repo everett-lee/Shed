@@ -26,7 +26,6 @@ class ShedGame:
         self.judger = None
         self.players = []
         self.history = []
-        self.payoffs = [0 for _ in range(self.num_players)]
 
         self.configure(config)
 
@@ -116,6 +115,7 @@ class ShedGame:
             "top_card_count": top_card_count,
             "position": self.get_position(player, self.players),
             "current_player": self.game_pointer,
+            "unplayed_deck_size": self.dealer.get_unplayed_deck_size()
         }
 
     def is_over(self) -> bool:
@@ -132,14 +132,15 @@ class ShedGame:
     def get_payoffs(self) -> List[int]:
         """Return the payoffs of the game"""
         winner = self.round.winner
-        if winner is not None:
-            # TODO make nicer
-            self.payoffs[winner.player_id] += 1
-            for i in range(len(self.payoffs)):
-                if i != winner.player_id:
-                    self.payoffs[i] -= 1
+        payoffs = [0 for _ in range(self.num_players)]
 
-        return self.payoffs
+        for i, player in enumerate(self.players):
+            if player.player_id == winner.player_id:
+                payoffs[i] = 1
+            else:
+                payoffs[i] = - 1
+
+        return payoffs
 
     def get_legal_actions(self) -> List[ShedAction]:
         current_player = self.players[self.game_pointer]

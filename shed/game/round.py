@@ -50,13 +50,14 @@ class ShedRound:
         if action == ShedAction.Pickup:
             player.take_cards(self.active_deck)
             self.active_deck = []
+            return False
 
         else:
             card = player.play_card(action)
-            ten_played = self.play_card(card)
+            deck_burned = self.play_card(card)
             if len(player.hand) < self.min_hand_size:
                 self.dealer.deal_card(player)
-            return ten_played
+            return deck_burned
 
     def _remove_threes(self, cards: List[ShedCard]) -> List[ShedCard]:
         return [c for c in cards if c.rank != "3"]

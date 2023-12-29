@@ -26,21 +26,21 @@ human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
 
 
-def load_model(model_path, env=None, position=None, device=None):
-    import torch
-    agent = torch.load(model_path, map_location=device)
-    agent.set_device(device)
-
-    return agent
-
-
-device = get_device()
-
-trained_agent = load_model(model_path="./logs/model.pth", device=device)
+# def load_model(model_path, env=None, position=None, device=None):
+#     import torch
+#     agent = torch.load(model_path, map_location=device)
+#     agent.set_device(device)
+#
+#     return agent
+#
+#
+# device = get_device()
+#
+# trained_agent = load_model(model_path="./logs/model.pth", device=device)
 
 env.set_agents(
     [
-        trained_agent,
+        human_agent,
         random_agent,
     ]
 )

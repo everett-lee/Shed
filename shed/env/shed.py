@@ -42,8 +42,9 @@ class ShedEnv(Env):
         config = config if config else DEFAULT_GAME_CONFIG
         self.game = ShedGame(config)
         super().__init__(config)
+        self.obs_size = 109
         # A deck for each player's hand plus the live deck plus score TODO handle jokers
-        self.state_shape = [[57] for _ in range(self.num_players)]
+        self.state_shape = [[self.obs_size] for _ in range(self.num_players)]
         self.action_shape = [None for _ in range(self.num_players)]
 
         with open(
@@ -73,17 +74,24 @@ class ShedEnv(Env):
         top_card = state["top_card"]
         top_card_count = state["top_card_count"]
         position = state["position"]
+        unplayed_deck_size = state["unplayed_deck_size"]
 
-        obs = np.zeros(57)
+        obs = np.zeros(self.obs_size)
         hand_idx = [self.card2index[card.get_index()] for card in hand]
         obs[hand_idx] = 1
 
-        top_card_idx = self.card2index[top_card.get_index()] if top_card else -1
-        obs[52] = top_card_idx
-        obs[53] = top_card_count
-        obs[54] = len(active_deck)
-        obs[55] = len(hand)
-        obs[56] = position
+        # TODO 1: use one hot for hand
+        # TODO 2: reduce obs size by removing position and len(hand)
+        if top_card:
+            # One hot encode top card index
+            top_card_index = self.card2index[top_card.get_index()]
+            obs[top_card_index + 52] = 1
+
+        obs[104] = top_card_count
+        obs[105] = len(active_deck)
+        obs[106] = len(hand)
+        obs[107] = position
+        obs[108] = unplayed_deck_size
 
         extracted_state["obs"] = obs
 
@@ -91,11 +99,13 @@ class ShedEnv(Env):
         # print("*"*100)
         # print(obs)
         # print(f"HAND: {obs[0:52]}")
-        # print(f"TOP CARD: {obs[52]}, {top_card}")
-        # print(f"TOP CARD COUNT: {obs[53]}")
-        # print(f"ACTIVE DECK SIZE: {obs[54]}")
-        # print(f"HAND SIZE: {obs[55]}")
-        # print(f"POSITION: {obs[56]}")
+        # print(f"TOP CARD: {obs[53:104]}, {self.card2index[top_card.get_index()] if top_card else -1}")
+        # print(f"TOP CARD COUNT: {obs[104]}")
+        # print(f"ACTIVE DECK SIZE: {obs[105]}")
+        # print(f"HAND SIZE: {obs[106]}")
+        # print(f"POSITION: {obs[107]}")
+        # print(f"UNPLAYED DECK SIZE: {obs[108]}")
+        # print(f"ACTIVE PLAYER {state['current_player']}")
 
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
@@ -104,7 +114,7 @@ class ShedEnv(Env):
 
         return extracted_state
 
-    def get_payoffs(self):
+    def get_payoffs(self) -> np.array:
         """Get the payoff of a game
 
         Returns:
