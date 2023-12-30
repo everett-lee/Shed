@@ -77,11 +77,11 @@ class ShedGame:
         next_state = self.get_state(next_player)
 
 
-        # TODO remove
-        print("Round ended")
-        print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
-        print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
-        print()
+        # TODO debug training mode
+        # print("Round ended")
+        # print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
+        # print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
+        # print()
 
         return next_state, self.game_pointer
 

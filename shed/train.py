@@ -13,15 +13,22 @@ from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
 ALGORITHM = "dqn"
-NUM_EPISODES = 5000  # 5000
-EVALUATE_EVERY = 50  # 100
-NUM_EVAL_GAMES = 15  # 2000
+NUM_EPISODES = 25_000  # 5000
+EVALUATE_EVERY = 250  # 100
+NUM_EVAL_GAMES = 200  # 2000
+MIN_FULL_EVAL_EPISODES = 5_000
+USE_TRAINED_ADVERSARY = False
 LOG_DIR = "./logs"
 
 register(
     env_id="shed",
     entry_point="shed.env.shed:ShedEnv",
 )
+
+def get_trained_agent(model_path, device=None):
+    agent = torch.load(model_path, map_location=device)
+    agent.set_device(device)
+    return agent
 
 
 def train():
@@ -50,6 +57,9 @@ def train():
             device=device,
             replay_memory_init_size=256,
             batch_size=128,
+            replay_memory_size=2_000_000,
+            epsilon_decay_steps=1_000_000,
+            learning_rate=0.00005
         )
     elif ALGORITHM == "nfsp":
         agent = NFSPAgent(
@@ -67,8 +77,9 @@ def train():
 
     agents = [agent]
 
+    adversary = get_trained_agent("./logs/trained-adversary.pth", device) if USE_TRAINED_ADVERSARY else RandomAgent(num_actions=env.num_actions)
     for _ in range(1, env.num_players):
-        agents.append(RandomAgent(num_actions=env.num_actions))
+        agents.append(adversary)
     env.set_agents(agents)
 
     # Start training
@@ -93,12 +104,13 @@ def train():
                 agent.feed(ts)
 
             # Evaluate the performance. Play with random agents.
+            num_eval_games = 5 if episode < MIN_FULL_EVAL_EPISODES else NUM_EVAL_GAMES
             if episode % EVALUATE_EVERY == 0:
                 logger.log_performance(
                     episode,
                     tournament(
                         env,
-                        NUM_EVAL_GAMES,
+                        num_eval_games,
                     )[0]
                 )
 
