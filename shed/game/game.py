@@ -76,7 +76,6 @@ class ShedGame:
         next_player = self.players[self.game_pointer]
         next_state = self.get_state(next_player)
 
-
         # TODO debug training mode
         # print("Round ended")
         # print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
@@ -115,7 +114,7 @@ class ShedGame:
             "top_card_count": top_card_count,
             "position": self.get_position(player, self.players),
             "current_player": self.game_pointer,
-            "unplayed_deck_size": self.dealer.get_unplayed_deck_size()
+            "unplayed_deck_size": self.dealer.get_unplayed_deck_size(),
         }
 
     def is_over(self) -> bool:
@@ -138,7 +137,7 @@ class ShedGame:
             if player.player_id == winner.player_id:
                 payoffs[i] = 1
             else:
-                payoffs[i] = - 1
+                payoffs[i] = -1
 
         return payoffs
 

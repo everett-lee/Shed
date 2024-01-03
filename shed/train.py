@@ -1,19 +1,24 @@
-import argparse
 import os
 
 import rlcard
 import torch
 from rlcard.agents import DQNAgent, RandomAgent, NFSPAgent
 from rlcard.envs.registration import register
-from rlcard.utils import (Logger, get_device, plot_curve, print_card,
-                          reorganize, set_seed, tournament)
+from rlcard.utils import (
+    Logger,
+    get_device,
+    plot_curve,
+    reorganize,
+    set_seed,
+    tournament,
+)
 
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
 ALGORITHM = "dqn"
-NUM_EPISODES = 25_000  # 5000
+NUM_EPISODES = 10_000  # 5000
 EVALUATE_EVERY = 250  # 100
 NUM_EVAL_GAMES = 200  # 2000
 MIN_FULL_EVAL_EPISODES = 5_000
@@ -24,6 +29,7 @@ register(
     env_id="shed",
     entry_point="shed.env.shed:ShedEnv",
 )
+
 
 def get_trained_agent(model_path, device=None):
     agent = torch.load(model_path, map_location=device)
@@ -36,7 +42,6 @@ def train():
     device = get_device()
     print(f"DEVICE: {device}")
 
-
     # Seed numpy, torch, random
     set_seed(SEED)
 
@@ -48,7 +53,6 @@ def train():
         },
     )
 
-
     if ALGORITHM == "dqn":
         agent = DQNAgent(
             num_actions=env.num_actions,
@@ -57,9 +61,9 @@ def train():
             device=device,
             replay_memory_init_size=256,
             batch_size=128,
-            replay_memory_size=2_000_000,
+            replay_memory_size=500_000,
             epsilon_decay_steps=1_000_000,
-            learning_rate=0.00005
+            learning_rate=0.00005,
         )
     elif ALGORITHM == "nfsp":
         agent = NFSPAgent(
@@ -77,7 +81,11 @@ def train():
 
     agents = [agent]
 
-    adversary = get_trained_agent("./logs/trained-adversary.pth", device) if USE_TRAINED_ADVERSARY else RandomAgent(num_actions=env.num_actions)
+    adversary = (
+        get_trained_agent("./logs/trained-adversary.pth", device)
+        if USE_TRAINED_ADVERSARY
+        else RandomAgent(num_actions=env.num_actions)
+    )
     for _ in range(1, env.num_players):
         agents.append(adversary)
     env.set_agents(agents)
@@ -85,16 +93,15 @@ def train():
     # Start training
     with Logger(LOG_DIR) as logger:
         for episode in range(NUM_EPISODES):
-
             logger.log(f"\nStarting episode {episode}")
 
-            if ALGORITHM == 'nfsp':
+            if ALGORITHM == "nfsp":
                 agents[0].sample_episode_policy()
 
             # Generate data from the environment
             trajectories, payoffs = env.run(is_training=True)
 
-            # Reorganaize the data to be state, action, reward, next_state, done
+            # Reorganise the data to be state, action, reward, next_state, done
             trajectories = reorganize(trajectories, payoffs)
 
             # Feed transitions into agent memory, and train the agent
@@ -111,7 +118,7 @@ def train():
                     tournament(
                         env,
                         num_eval_games,
-                    )[0]
+                    )[0],
                 )
 
         # Get the paths

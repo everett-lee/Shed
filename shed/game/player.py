@@ -44,6 +44,7 @@ class ShedPlayer:
 
         if not card_arr:
             raise Exception(f"{action} not present in the hand")
+
         card = card_arr[0]
         self.hand.remove(card)
         return card

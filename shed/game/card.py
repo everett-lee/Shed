@@ -19,12 +19,13 @@ class ShedCard(Card):
         "3": 15,
         "A": 16,
     }
+    beat_magic_card_ranks = ["A", "3", "T", "7"]
 
     def __init__(self, suit, rank):
         super().__init__(suit, rank)
 
     def is_magic_card(self) -> bool:
-        return self.rank in ["A", "3", "T", "7"]
+        return self.rank in self.beat_magic_card_ranks
 
     def is_ace(self) -> bool:
         return self.rank == "A"
