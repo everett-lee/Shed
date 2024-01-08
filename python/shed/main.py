@@ -26,7 +26,7 @@ human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
 
 
-def load_model(model_path, env=None, position=None, device=None):
+def load_model(model_path, device=None):
     import torch
 
     agent = torch.load(model_path, map_location=device)
@@ -38,7 +38,7 @@ def load_model(model_path, env=None, position=None, device=None):
 device = get_device()
 
 trained_agent = load_model(
-    model_path="./good_models/model-30-12-30000.pth", device=device
+    model_path="./good_models/model-7-1-5000-mid-size.pth", device=device
 )
 
 env.set_agents([trained_agent, human_agent])
@@ -59,10 +59,6 @@ while True:
         _action_list.insert(0, action_record[-i])
     for pair in _action_list:
         print(">> Player", pair[0], "chooses", pair[1])
-
-    # Let's take a look at what the agent card is
-    print("===============     CFR Agent    ===============")
-    print_card(env.get_perfect_information()["hand_cards"][1])
 
     print("===============     Result     ===============")
     print(payoffs)

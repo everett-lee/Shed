@@ -18,10 +18,10 @@ from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
 ALGORITHM = "dqn"
-NUM_EPISODES = 10_000  # 5000
-EVALUATE_EVERY = 250  # 100
+NUM_EPISODES = 5_000  # 5000
+EVALUATE_EVERY = 100  # 100
 NUM_EVAL_GAMES = 200  # 2000
-MIN_FULL_EVAL_EPISODES = 5_000
+MIN_FULL_EVAL_EPISODES = 1_000
 USE_TRAINED_ADVERSARY = False
 LOG_DIR = "./logs"
 
@@ -61,8 +61,8 @@ def train():
             device=device,
             replay_memory_init_size=256,
             batch_size=128,
-            replay_memory_size=500_000,
-            epsilon_decay_steps=1_000_000,
+            replay_memory_size=1_000_000,
+            epsilon_decay_steps=500_000, # roughly 1000 eps
             learning_rate=0.00005,
         )
     elif ALGORITHM == "nfsp":
