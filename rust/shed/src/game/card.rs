@@ -2,8 +2,9 @@ use std::{
     cmp::Ordering,
     fmt::{self},
 };
+use strum_macros::EnumIter;
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
 pub enum Suit {
     Clubs,
     Diamonds,
@@ -11,10 +12,9 @@ pub enum Suit {
     Spades,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
 pub enum Rank {
     Ace,
-    One,
     Two,
     Three,
     Four,
@@ -44,7 +44,6 @@ impl fmt::Display for Rank {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Rank::Ace => write!(f, "A"),
-            Rank::One => write!(f, "1"),
             Rank::Two => write!(f, "2"),
             Rank::Three => write!(f, "3"),
             Rank::Four => write!(f, "4"),
@@ -61,7 +60,7 @@ impl fmt::Display for Rank {
     }
 }
 
-#[derive(Eq, Debug)]
+#[derive(Eq, Debug, Hash)]
 pub struct Card {
     suit: Suit,
     rank: Rank,
@@ -73,40 +72,39 @@ impl Card {
     }
 
     pub fn suit(&self) -> &Suit {
-        return &self.suit;
+        &self.suit
     }
 
     pub fn rank(&self) -> &Rank {
-        return &self.rank;
+        &self.rank
     }
 
     pub fn get_index(&self) -> String {
-        return format!("{}{}", self.suit, self.rank);
+        format!("{}{}", self.suit, self.rank)
     }
 
     pub fn is_ace(&self) -> bool {
-        return self.rank == Rank::Ace;
+        self.rank == Rank::Ace
     }
 
     pub fn is_ten(&self) -> bool {
-        return self.rank == Rank::Ten;
+        self.rank == Rank::Ten
     }
 
     pub fn is_seven(&self) -> bool {
-        return self.rank == Rank::Seven;
+        self.rank == Rank::Seven
     }
 
     pub fn is_three(&self) -> bool {
-        return self.rank == Rank::Three;
+        self.rank == Rank::Three
     }
 
     pub fn is_magic_card(&self) -> bool {
-        return self.is_ace() || self.is_three() || self.is_seven() || self.is_ten();
+        self.is_ace() || self.is_three() || self.is_seven() || self.is_ten()
     }
 
     pub fn value(&self) -> u16 {
         match &self.rank {
-            Rank::One => 1,
             Rank::Two => 2,
             Rank::Three => 3,
             Rank::Four => 4,
@@ -144,29 +142,29 @@ impl PartialOrd for Card {
         if self.gt(other) {
             return Some(Ordering::Greater);
         };
-        return None;
+        None
     }
 
     fn lt(&self, other: &Self) -> bool {
         if other.is_ace() && !self.is_magic_card() {
             return true;
         };
-        return self.value().lt(&other.value());
+        self.value().lt(&other.value())
     }
 
     fn le(&self, other: &Self) -> bool {
-        return self.eq(other) || self.lt(other);
+        self.eq(other) || self.lt(other)
     }
 
     fn gt(&self, other: &Self) -> bool {
         if self.is_ace() {
             return true;
         };
-        return self.value().gt(&other.value());
+        self.value().gt(&other.value())
     }
 
     fn ge(&self, other: &Self) -> bool {
-        return self.eq(other) || self.gt(other);
+        self.eq(other) || self.gt(other)
     }
 }
 

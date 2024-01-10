@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod card_tests {
     use crate::*;
 
     #[test]
@@ -23,12 +23,32 @@ mod tests {
         assert!(c2 < c1);
     }
 
+    #[test]
+    fn test_less_than_or_equal() {
+        let c1 = Card::new(Suit::Spades, Rank::Nine);
+        let c2 = Card::new(Suit::Diamonds, Rank::Nine);
+        assert!(c2 <= c1);
+    }
 
     #[test]
-    fn ab() {
-        let c1 = Card::new(Suit::Spades, Rank::Three);
-        let c2 = Card::new(Suit::Diamonds, Rank::Ace);
-        assert!(c2 < c1);
+    fn test_greater_than() {
+        let c1 = Card::new(Suit::Spades, Rank::Two);
+        let c2 = Card::new(Suit::Diamonds, Rank::Eight);
+        assert!(c2 > c1);
+    }
+
+    #[test]
+    fn test_greater_than_ace() {
+        let c1 = Card::new(Suit::Spades, Rank::Ace);
+        let c2 = Card::new(Suit::Diamonds, Rank::King);
+        assert!(!(c2 > c1));
+    }
+
+    #[test]
+    fn test_greater_than_or_equal() {
+        let c1 = Card::new(Suit::Spades, Rank::Nine);
+        let c2 = Card::new(Suit::Diamonds, Rank::Nine);
+        assert!(c2 >= c1);
     }
 
 }
