@@ -2,24 +2,40 @@
 mod dealer_tests {
     use std::collections::HashSet;
 
-    use crate::{game::dealer::*, Card};
+    use crate::{
+        game::{dealer::{*, self}, player::Player},
+        Card,
+    };
 
     #[test]
     fn test_card_equals() {
         let dealer = Dealer::new();
-        let deck_as_set: HashSet<&Card> = dealer.deck().into_iter().collect();
-        assert_eq!(deck_as_set.len(), 52);
-        assert_eq!(deck_as_set.len(), dealer.deck_size());
+        assert_eq!(dealer.deck().len(), 52);
+        assert_eq!(dealer.deck_size(), 52);
     }
 
     #[test]
-    fn test_deal_card() {
+    fn test_deal_card_to_two() {
         let mut dealer = Dealer::new();
+        let mut p1 = Player::new(0);
+        let mut p2 = Player::new(1);
 
-        for _ in 0..3 {
-            let c = dealer.deal_card().unwrap();
-            println!("{}", c)
+        dealer.deal_card(&mut p1);
+        dealer.deal_card(&mut p2);
+        dealer.deal_card(&mut p2);
+
+        assert_eq!(p1.hand().len(), 1);
+        assert_eq!(p2.hand().len(), 2);
+        assert_eq!(dealer.deck_size(), 49);
+    }
+
+    #[test]
+    fn test_max_cards_dealt() {
+        let mut dealer = Dealer::new();
+        let mut player = Player::new(0);
+        for _ in 0..60 {    
+            dealer.deal_card(&mut player);
         }
-        println!("{}", dealer.deck().len())
+        assert_eq!(player.hand().len(), 52);
     }
 }

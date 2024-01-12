@@ -26,7 +26,7 @@ lazy_static! {
     };
 }
 
-#[derive(Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
 pub enum Action {
     Ace,
     Two,

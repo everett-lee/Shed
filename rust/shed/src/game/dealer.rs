@@ -3,6 +3,8 @@ use rand::seq::SliceRandom;
 
 use crate::{Card, Suit, Rank};
 
+use crate::game::player::Player;
+
 #[derive(Debug)]
 pub struct Dealer {
     unplayed_deck: Vec<Card>,
@@ -30,8 +32,12 @@ impl Dealer {
         self.unplayed_deck.len()
     }
 
-    pub fn deal_card(&mut self) -> Option<Card> {
-        self.unplayed_deck.pop()
+    pub fn deal_card(&mut self, player: &mut Player) {
+        let played_card_option = self.unplayed_deck.pop();
+        match played_card_option {
+            Some(card) => player.take_cards(&mut vec![card]),
+            None => ()
+        }
     }
     
 }

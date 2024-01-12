@@ -4,6 +4,8 @@ use std::{
 };
 use strum_macros::EnumIter;
 
+use super::action::Action;
+
 #[derive(Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
 pub enum Suit {
     Clubs,
@@ -120,6 +122,25 @@ impl Card {
             Rank::Ace => 14,
         }
     }
+
+    pub fn to_action(&self) -> Action {
+        match &self.rank {
+            Rank::Ace => Action::Ace,
+            Rank::Two => Action::Two,
+            Rank::Three => Action::Three,
+            Rank::Four => Action::Four,
+            Rank::Five => Action::Five,
+            Rank::Six => Action::Six,
+            Rank::Seven => Action::Seven,
+            Rank::Eight => Action::Eight,
+            Rank::Nine => Action::Nine,
+            Rank::Ten => Action::Ten,
+            Rank::Jack => Action::Jack,
+            Rank::Queen => Action::Queen,
+            Rank::King => Action::King,
+        }
+    }
+
 }
 
 impl fmt::Display for Card {

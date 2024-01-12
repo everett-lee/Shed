@@ -1,4 +1,6 @@
-use crate::{Card, Suit, Rank};
+use std::collections::HashSet;
+
+use crate::Card;
 
 use super::action::Action;
 
@@ -20,6 +22,13 @@ impl Player {
 
     pub fn hand(&self) -> &Vec<Card> {
         &self.hand
+    }
+
+    pub fn hand_to_actions(&self) -> Vec<Action> {
+        let as_set: HashSet<Action> = self.hand().iter().map(|c| c.to_action()).collect();
+        let mut as_vec = Vec::from_iter(as_set);
+        as_vec.sort();
+        as_vec
     }
 
     pub fn take_cards(&mut self, new_cards: &mut Vec<Card>) {
