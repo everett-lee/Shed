@@ -6,3 +6,4 @@ pub mod player;
 pub mod player_tests;
 pub mod action;
 pub mod round;
+pub mod round_tests;

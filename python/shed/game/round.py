@@ -73,7 +73,7 @@ class ShedRound:
     def _remove_threes(self, cards: List[ShedCard]) -> List[ShedCard]:
         return [c for c in cards if c.rank != "3"]
 
-    def is_quad(self):
+    def is_quad(self) -> bool:
         """Check if top four cards, excluding see through threes, are same rank"""
         without_threes = self._remove_threes(self.active_deck)
         ranks = [c.rank for c in without_threes]
