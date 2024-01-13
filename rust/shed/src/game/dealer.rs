@@ -1,7 +1,7 @@
-use strum::IntoEnumIterator;
 use rand::seq::SliceRandom;
+use strum::IntoEnumIterator;
 
-use crate::{Card, Suit, Rank};
+use crate::{Card, Rank, Suit};
 
 use crate::game::player::Player;
 
@@ -14,14 +14,16 @@ impl Dealer {
     pub fn new() -> Self {
         // create 52 card deck
         let mut deck: Vec<Card> = Suit::iter()
-        .map({|c| Rank::iter()
-        .map(move |r| Card::new(c, r))})
-        .flatten().collect();
+            .map({ |c| Rank::iter().map(move |r| Card::new(c, r)) })
+            .flatten()
+            .collect();
 
         let mut rng = rand::thread_rng();
         deck.shuffle(&mut rng);
 
-        Self { unplayed_deck: deck }
+        Self {
+            unplayed_deck: deck,
+        }
     }
 
     pub fn deck(&self) -> &Vec<Card> {
@@ -36,8 +38,7 @@ impl Dealer {
         let played_card_option = self.unplayed_deck.pop();
         match played_card_option {
             Some(card) => player.take_cards(&mut vec![card]),
-            None => ()
+            None => (),
         }
     }
-    
 }

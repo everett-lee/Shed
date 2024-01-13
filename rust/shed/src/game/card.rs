@@ -140,7 +140,6 @@ impl Card {
             Rank::King => Action::King,
         }
     }
-
 }
 
 impl fmt::Display for Card {

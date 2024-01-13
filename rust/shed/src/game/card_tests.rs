@@ -4,8 +4,14 @@ mod card_tests {
 
     #[test]
     fn test_card_equals() {
-        assert_eq!(Card::new(Suit::Spades, Rank::Ace), Card::new(Suit::Spades, Rank::Ace));
-        assert_eq!(Card::new(Suit::Clubs, Rank::Jack), Card::new(Suit::Spades, Rank::Jack));
+        assert_eq!(
+            Card::new(Suit::Spades, Rank::Ace),
+            Card::new(Suit::Spades, Rank::Ace)
+        );
+        assert_eq!(
+            Card::new(Suit::Clubs, Rank::Jack),
+            Card::new(Suit::Spades, Rank::Jack)
+        );
     }
 
     #[test]
@@ -14,7 +20,6 @@ mod card_tests {
         let c2 = Card::new(Suit::Diamonds, Rank::Eight);
         assert!(c2 < c1);
     }
-
 
     #[test]
     fn test_less_than_versus_special() {
@@ -50,5 +55,4 @@ mod card_tests {
         let c2 = Card::new(Suit::Diamonds, Rank::Nine);
         assert!(c2 >= c1);
     }
-
 }

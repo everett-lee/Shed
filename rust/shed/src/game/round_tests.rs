@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod round_tests {
-    
 
     use crate::{
         game::{dealer::Dealer, player::Player, round::Round},
@@ -82,7 +81,6 @@ mod round_tests {
         assert_eq!(received_top_card, Some(Rank::Queen));
         assert_eq!(count, 1);
     }
-
 
     #[test]
     fn test_get_top_card_and_count_empty_deck() {

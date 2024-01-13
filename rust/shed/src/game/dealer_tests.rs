@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod dealer_tests {
 
-    use crate::
-        game::{dealer::*, player::Player}
-    ;
+    use crate::game::{dealer::*, player::Player};
 
     #[test]
     fn test_card_equals() {
@@ -31,7 +29,7 @@ mod dealer_tests {
     fn test_max_cards_dealt() {
         let mut dealer = Dealer::new();
         let mut player = Player::new(0);
-        for _ in 0..60 {    
+        for _ in 0..60 {
             dealer.deal_card(&mut player);
         }
         assert_eq!(player.hand().len(), 52);
