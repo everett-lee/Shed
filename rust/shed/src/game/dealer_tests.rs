@@ -1,11 +1,9 @@
 #[cfg(test)]
 mod dealer_tests {
-    use std::collections::HashSet;
 
-    use crate::{
-        game::{dealer::{*, self}, player::Player},
-        Card,
-    };
+    use crate::
+        game::{dealer::*, player::Player}
+    ;
 
     #[test]
     fn test_card_equals() {

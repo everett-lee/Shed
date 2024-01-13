@@ -1,4 +1,4 @@
-use crate::{game::{dealer::Dealer, player::Player}, Card};
+use crate::{game::{dealer::Dealer, player::Player}, Card, Rank};
 
 
 #[derive(Debug)]
@@ -37,10 +37,32 @@ impl Round {
     }
 
 
+    pub fn is_legal_card(&self, card: Card) -> bool {
+        let no_threes = self.get_deck_no_threes();
+
+        let top_card_option = no_threes.last();
+        if no_threes.is_empty() || card.is_magic_card() || top_card_option.is_none() {
+            return true;
+        }
+
+        let top_card = top_card_option.unwrap();
+
+        if top_card.is_ace() {
+            return card.is_magic_card();
+        }
+
+        if top_card.is_seven() {
+            return card <= *top_card;
+        }
+
+        // Standard comparison, great or equal value required
+        card >= *top_card
+       }
+
     // TODO refactor
     pub fn has_quad(&self) -> bool {
         let no_threes = self.get_deck_no_threes();
-        let first_index = no_threes.len() as i32;
+        let first_index = no_threes.len();
         let last_index = no_threes.len() as i32 - 4;
 
         if last_index < 0 {
@@ -53,8 +75,7 @@ impl Round {
             _ => return false
         };
 
-        for i in (last_index..first_index).rev() {
-            let card = no_threes.get(i as usize).expect("Index should be valid");
+        for card in no_threes[last_index as usize..first_index].into_iter().rev() {
             if card.rank() == top_rank {
                 dup_count += 1;
             }
@@ -67,4 +88,21 @@ impl Round {
         }
     } 
 
+    pub fn get_top_card_rank_and_count(&self) -> (Option<Rank>, u32) {
+        let no_threes = self.get_deck_no_threes();
+
+        let top_rank = match no_threes.last() {
+            Some(c) => c.rank(), 
+            _ => return (None, 0)
+        };
+        let mut count = 0;
+        for card in no_threes.iter().rev() {
+            if card.rank() == top_rank {
+                count += 1;
+            } else {
+                return (Some(top_rank.clone()), count);
+            }
+        }
+        (None, 0)
+    }
 }
