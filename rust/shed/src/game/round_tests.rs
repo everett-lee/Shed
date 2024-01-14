@@ -8,8 +8,7 @@ mod round_tests {
 
     #[test]
     fn test_remove_threes() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Spades, Rank::Ace));
         round.play_card(Card::new(Suit::Spades, Rank::Two));
         round.play_card(Card::new(Suit::Spades, Rank::Three));
@@ -32,8 +31,7 @@ mod round_tests {
 
     #[test]
     fn test_deck_burned_on_quad() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Queen));
         round.play_card(Card::new(Suit::Spades, Rank::Queen));
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
@@ -46,15 +44,13 @@ mod round_tests {
 
     #[test]
     fn test_has_quad_empty() {
-        let dealer = Dealer::new();
-        let round = Round::new(dealer, 0);
+        let round = Round::new(0);
         assert!(!round.has_quad())
     }
 
     #[test]
     fn test_has_quad_distruped() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Queen));
         round.play_card(Card::new(Suit::Spades, Rank::Queen));
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
@@ -66,8 +62,7 @@ mod round_tests {
 
     #[test]
     fn test_get_top_card_and_count() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Jack));
         round.play_card(Card::new(Suit::Diamonds, Rank::Two));
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
@@ -79,8 +74,7 @@ mod round_tests {
 
     #[test]
     fn test_get_top_card_and_count_empty_deck() {
-        let dealer = Dealer::new();
-        let round = Round::new(dealer, 0);
+        let round = Round::new(0);
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
         assert_eq!(received_top_card, None);
@@ -89,8 +83,7 @@ mod round_tests {
 
     #[test]
     fn test_get_top_card_and_count_triple() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Two));
         round.play_card(Card::new(Suit::Clubs, Rank::Queen));
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
@@ -103,8 +96,7 @@ mod round_tests {
 
     #[test]
     fn test_get_top_card_and_count_triple_interupted() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Two));
         round.play_card(Card::new(Suit::Clubs, Rank::Queen));
         round.play_card(Card::new(Suit::Diamonds, Rank::Four));
@@ -118,8 +110,7 @@ mod round_tests {
 
     #[test]
     fn test_get_top_card_and_count_triple_with_three() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Two));
         round.play_card(Card::new(Suit::Clubs, Rank::Queen));
         round.play_card(Card::new(Suit::Diamonds, Rank::Three));
@@ -133,8 +124,7 @@ mod round_tests {
 
     #[test]
     fn test_get_legal_actions() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
         round.play_card(Card::new(Suit::Clubs, Rank::Nine));
 
         let mut player = Player::new(0);
@@ -165,9 +155,7 @@ mod round_tests {
 
     #[test]
     fn test_get_legal_actions_empty_active_deck() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
-
+        let mut round = Round::new(0);
         let mut player = Player::new(0);
 
         // player hand
@@ -196,9 +184,8 @@ mod round_tests {
 
     #[test]
     fn test_pickup() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
-
+        let mut round = Round::new(0);
+        let mut dealer = Dealer::new();
         let player = Player::new(0);
         let mut players = vec![player];
         players.get_mut(0).unwrap().take_cards(&mut vec![
@@ -210,7 +197,7 @@ mod round_tests {
         let legal_action: Vec<Action> = round.get_legal_actions(&players, 0);
         assert_eq!(legal_action, vec![Action::Queen, Action::Pickup]);
 
-        round.handle_action(&mut players, &Action::Pickup);
+        round.handle_action(&mut dealer, &mut players, &Action::Pickup);
         assert_eq!(
             players.get_mut(0).unwrap().hand(),
             &vec![
@@ -224,8 +211,7 @@ mod round_tests {
 
     #[test]
     fn test_no_pickup_empty_deck() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut round = Round::new(0);
 
         let player = Player::new(0);
         let mut players = vec![player];
@@ -240,8 +226,8 @@ mod round_tests {
 
     #[test]
     fn test_proceed_round() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut dealer = Dealer::new();
+        let mut round = Round::new(0);
 
         let player_1 = Player::new(0);
         let player_2 = Player::new(1);
@@ -256,7 +242,7 @@ mod round_tests {
             Card::new(Suit::Hearts, Rank::Two),
         ]);
 
-        round.proceed_round(&mut players, Action::Queen);
+        round.proceed_round(&mut dealer, &mut players, Action::Queen);
         assert_eq!(
             round.active_deck(),
             &vec![Card::new(Suit::Clubs, Rank::Queen)]
@@ -267,8 +253,8 @@ mod round_tests {
 
     #[test]
     fn test_proceed_round_ten() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut dealer = Dealer::new();
+        let mut round = Round::new(0);
 
         let player_1 = Player::new(0);
         let player_2 = Player::new(1);
@@ -284,7 +270,7 @@ mod round_tests {
             Card::new(Suit::Hearts, Rank::Two),
         ]);
 
-        round.proceed_round(&mut players, Action::Ten);
+        round.proceed_round(&mut dealer, &mut players, Action::Ten);
         assert!(round.active_deck().is_empty());
         assert_eq!(players.get_mut(0).unwrap().hand().len(), 2);
         assert_eq!(round.active_player_id(), 0);
@@ -292,8 +278,8 @@ mod round_tests {
 
     #[test]
     fn test_proceed_round_quad() {
-        let dealer = Dealer::new();
-        let mut round = Round::new(dealer, 0);
+        let mut dealer = Dealer::new();
+        let mut round = Round::new(0);
 
         let player_1 = Player::new(0);
         let player_2 = Player::new(1);
@@ -311,7 +297,7 @@ mod round_tests {
             Card::new(Suit::Hearts, Rank::Two),
         ]);
 
-        round.proceed_round(&mut players, Action::Four);
+        round.proceed_round(&mut dealer, &mut players, Action::Four);
         assert!(round.active_deck().is_empty());
         assert_eq!(players.get_mut(0).unwrap().hand().len(), 2);
         assert_eq!(round.active_player_id(), 0);

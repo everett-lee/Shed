@@ -1,17 +1,12 @@
 pub mod game;
-use std::vec;
 
 pub use crate::game::card::{Card, Rank, Suit};
+use crate::game::{dealer::Dealer, game::Game, round::Round};
 
 fn main() {
     println!("Hello, world!");
-    let c = Card::new(Suit::Clubs, Rank::Jack);
-    let d = Card::new(Suit::Hearts, Rank::Three);
-
-    let card_vec = vec![c, d];
-    let bools: Vec<bool> = card_vec.iter().map(|el| el.is_magic_card()).collect();
-
-    for b in bools {
-        println!("{}", b)
-    }
+    let mut dealer = Dealer::new();
+    let round = Round::new(0);
+    let mut game = Game::new(2, Some(true));
+    game.init_game();
 }

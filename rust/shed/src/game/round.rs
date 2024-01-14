@@ -9,23 +9,21 @@ use super::action::Action;
 
 #[derive(Debug)]
 pub struct Round {
-    dealer: Dealer,
     active_player_id: u32,
     active_deck: Vec<Card>,
     is_over: bool,
-    winner: Option<u32>,
+    winner_id: Option<u32>,
     min_hand_size: u32,
 }
 
 impl Round {
-    pub fn new(dealer: Dealer, active_player_id: u32) -> Round {
+    pub fn new(active_player_id: u32) -> Round {
         let active_deck = vec![];
         Self {
-            dealer,
             active_player_id,
             active_deck,
             is_over: false,
-            winner: None,
+            winner_id: None,
             min_hand_size: 5,
         }
     }
@@ -38,8 +36,13 @@ impl Round {
         self.active_player_id
     }
 
-    pub fn proceed_round(&mut self, players: &mut Vec<Player>, action: Action) -> u32 {
-        let deck_burned = self.handle_action(players, &action);
+    pub fn proceed_round(
+        &mut self,
+        dealer: &mut Dealer,
+        players: &mut Vec<Player>,
+        action: Action,
+    ) -> u32 {
+        let deck_burned = self.handle_action(dealer, players, &action);
 
         let player = players
             .get(self.active_player_id as usize)
@@ -47,7 +50,7 @@ impl Round {
 
         if player.hand().is_empty() {
             self.is_over = true;
-            self.winner = Some(player.player_id());
+            self.winner_id = Some(player.player_id());
         }
 
         // When deck burned player goes again
@@ -57,7 +60,12 @@ impl Round {
         return self.active_player_id;
     }
 
-    pub fn handle_action(&mut self, players: &mut Vec<Player>, action: &Action) -> bool {
+    pub fn handle_action(
+        &mut self,
+        dealer: &mut Dealer,
+        players: &mut Vec<Player>,
+        action: &Action,
+    ) -> bool {
         let player: &mut Player = players
             .get_mut(self.active_player_id as usize)
             .expect("Players should contain player with active player ID");
@@ -71,7 +79,7 @@ impl Round {
             player.play_card(*action);
             let deck_burned = self.play_card(card);
             if player.hand().len() < self.min_hand_size as usize {
-                self.dealer.deal_card(player);
+                dealer.deal_card(player);
             }
             return deck_burned;
         }
@@ -134,12 +142,6 @@ impl Round {
             .map(|c| c.to_action())
             .collect();
 
-        println!("THE ACTIVE DECK");
-        println!("THE ACTIONS");
-        for ac in legal_actions.iter() {
-            println!("ACTION {ac}");
-        }
-
         // Only allow pickup when deck has cards
         if !self.active_deck.is_empty() {
             legal_actions.insert(Action::Pickup);
@@ -199,5 +201,9 @@ impl Round {
             }
         }
         (None, 0)
+    }
+
+    pub fn get_winner_id(&self) -> Option<u32> {
+        self.winner_id
     }
 }
