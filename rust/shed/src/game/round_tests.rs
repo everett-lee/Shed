@@ -2,7 +2,7 @@
 mod round_tests {
 
     use crate::{
-        game::{dealer::Dealer, player::Player, round::Round, action::Action},
+        game::{action::Action, dealer::Dealer, player::Player, round::Round},
         Card, Rank, Suit,
     };
 
@@ -137,22 +137,31 @@ mod round_tests {
         let mut round = Round::new(dealer, 0);
         round.play_card(Card::new(Suit::Clubs, Rank::Nine));
 
-        let mut player = Player::new(0);  
+        let mut player = Player::new(0);
 
         // player hand
         player.take_cards(&mut vec![
-            Card::new(Suit::Clubs, Rank::Queen), Card::new(Suit::Hearts, Rank::Queen),
-            Card::new(Suit::Clubs, Rank::Two), Card::new(Suit::Diamonds, Rank::Two),
-            Card::new(Suit::Diamonds, Rank::Nine), Card::new(Suit::Diamonds, Rank::Three),
-            Card::new(Suit::Diamonds, Rank::Seven)  
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Nine),
+            Card::new(Suit::Diamonds, Rank::Three),
+            Card::new(Suit::Diamonds, Rank::Seven),
         ]);
 
         let legal_actions = round.get_legal_actions(&vec![player], 0);
-        assert_eq!(legal_actions, vec![
-            Action::Three, Action::Seven, Action::Nine, Action::Queen, Action::Pickup
-        ]);
+        assert_eq!(
+            legal_actions,
+            vec![
+                Action::Three,
+                Action::Seven,
+                Action::Nine,
+                Action::Queen,
+                Action::Pickup
+            ]
+        );
     }
-
 
     #[test]
     fn test_get_legal_actions_empty_active_deck() {
@@ -163,15 +172,148 @@ mod round_tests {
 
         // player hand
         player.take_cards(&mut vec![
-            Card::new(Suit::Clubs, Rank::Queen), Card::new(Suit::Hearts, Rank::Queen),
-            Card::new(Suit::Clubs, Rank::Two), Card::new(Suit::Diamonds, Rank::Two),
-            Card::new(Suit::Diamonds, Rank::Nine), Card::new(Suit::Diamonds, Rank::Three),
-            Card::new(Suit::Diamonds, Rank::Seven) 
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Nine),
+            Card::new(Suit::Diamonds, Rank::Three),
+            Card::new(Suit::Diamonds, Rank::Seven),
         ]);
 
         let legal_actions = round.get_legal_actions(&vec![player], 0);
-        assert_eq!(legal_actions, vec![
-            Action::Two, Action::Three, Action::Seven, Action::Nine, Action::Queen
-        ])
+        assert_eq!(
+            legal_actions,
+            vec![
+                Action::Two,
+                Action::Three,
+                Action::Seven,
+                Action::Nine,
+                Action::Queen
+            ]
+        )
+    }
+
+    #[test]
+    fn test_pickup() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, 0);
+
+        let player = Player::new(0);
+        let mut players = vec![player];
+        players.get_mut(0).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Queen),
+        ]);
+        round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
+
+        let legal_action: Vec<Action> = round.get_legal_actions(&players, 0);
+        assert_eq!(legal_action, vec![Action::Queen, Action::Pickup]);
+
+        round.handle_action(&mut players, &Action::Pickup);
+        assert_eq!(
+            players.get_mut(0).unwrap().hand(),
+            &vec![
+                Card::new(Suit::Clubs, Rank::Queen),
+                Card::new(Suit::Hearts, Rank::Queen),
+                Card::new(Suit::Diamonds, Rank::Queen)
+            ]
+        );
+        assert!(round.active_deck().is_empty());
+    }
+
+    #[test]
+    fn test_no_pickup_empty_deck() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, 0);
+
+        let player = Player::new(0);
+        let mut players = vec![player];
+        players.get_mut(0).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Queen),
+        ]);
+
+        let legal_action: Vec<Action> = round.get_legal_actions(&players, 0);
+        assert_eq!(legal_action, vec![Action::Queen]);
+    }
+
+    #[test]
+    fn test_proceed_round() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, 0);
+
+        let player_1 = Player::new(0);
+        let player_2 = Player::new(1);
+        let mut players = vec![player_1, player_2];
+
+        players.get_mut(0).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Two),
+        ]);
+        players.get_mut(1).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Diamonds, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Two),
+        ]);
+
+        round.proceed_round(&mut players, Action::Queen);
+        assert_eq!(
+            round.active_deck(),
+            &vec![Card::new(Suit::Clubs, Rank::Queen)]
+        );
+        assert_eq!(players.get_mut(0).unwrap().hand().len(), 2);
+        assert_eq!(round.active_player_id(), 1);
+    }
+
+    #[test]
+    fn test_proceed_round_ten() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, 0);
+
+        let player_1 = Player::new(0);
+        let player_2 = Player::new(1);
+        let mut players = vec![player_1, player_2];
+        round.play_card(Card::new(Suit::Hearts, Rank::Queen));
+
+        players.get_mut(0).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Ten),
+        ]);
+        players.get_mut(1).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Diamonds, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Two),
+        ]);
+
+        round.proceed_round(&mut players, Action::Ten);
+        assert!(round.active_deck().is_empty());
+        assert_eq!(players.get_mut(0).unwrap().hand().len(), 2);
+        assert_eq!(round.active_player_id(), 0);
+    }
+
+    #[test]
+    fn test_proceed_round_quad() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, 0);
+
+        let player_1 = Player::new(0);
+        let player_2 = Player::new(1);
+        let mut players = vec![player_1, player_2];
+        round.play_card(Card::new(Suit::Hearts, Rank::Four));
+        round.play_card(Card::new(Suit::Diamonds, Rank::Four));
+        round.play_card(Card::new(Suit::Spades, Rank::Four));
+
+        players.get_mut(0).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Four),
+            Card::new(Suit::Clubs, Rank::Ten),
+        ]);
+        players.get_mut(1).unwrap().take_cards(&mut vec![
+            Card::new(Suit::Diamonds, Rank::Queen),
+            Card::new(Suit::Hearts, Rank::Two),
+        ]);
+
+        round.proceed_round(&mut players, Action::Four);
+        assert!(round.active_deck().is_empty());
+        assert_eq!(players.get_mut(0).unwrap().hand().len(), 2);
+        assert_eq!(round.active_player_id(), 0);
     }
 }

@@ -1,4 +1,4 @@
-use strum_macros::EnumIter;
+use strum_macros::{Display, EnumIter};
 
 use crate::{Card, Rank, Suit};
 use lazy_static::lazy_static;
@@ -26,7 +26,7 @@ lazy_static! {
     };
 }
 
-#[derive(Ord, PartialOrd, Eq, PartialEq, Debug, EnumIter, Copy, Clone, Hash)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Debug, Display, EnumIter, Copy, Clone, Hash)]
 pub enum Action {
     Ace,
     Two,
@@ -47,6 +47,9 @@ pub enum Action {
 impl Action {
     pub fn to_card(&self) -> Card {
         // TODO do i need to clone?
-        ACTION_TO_CARD.get(&self).cloned().expect("There should be a matching Card")
+        ACTION_TO_CARD
+            .get(&self)
+            .cloned()
+            .expect("There should be a matching Card")
     }
 }
