@@ -2,7 +2,7 @@
 mod round_tests {
 
     use crate::{
-        game::{dealer::Dealer, player::Player, round::Round},
+        game::{dealer::Dealer, player::Player, round::Round, action::Action},
         Card, Rank, Suit,
     };
 
@@ -141,11 +141,69 @@ mod round_tests {
     }
 
     #[test]
-    fn delete_me() {
-        let a = vec![1, 2, 3, 4];
-        for el in a[0..4].into_iter().rev() {
-            println!("{el}");
-        }
-        println!("{}", a.get(0).unwrap());
+    fn test_get_legal_actions() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, vec![Player::new(0)], 0);
+        round.play_card(Card::new(Suit::Clubs, Rank::Nine));
+
+        // player hand
+        round.get_player(0).take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen), Card::new(Suit::Hearts, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Two), Card::new(Suit::Diamonds, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Nine), Card::new(Suit::Diamonds, Rank::Three),
+            Card::new(Suit::Diamonds, Rank::Seven)  
+        ]);
+
+        let legal_actions = round.get_legal_actions(0);
+        assert_eq!(legal_actions, vec![
+            Action::Three, Action::Seven, Action::Nine, Action::Queen, Action::Pickup
+        ])
+    }
+
+
+    #[test]
+    fn test_get_legal_actions_empty_active_deck() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, vec![Player::new(0)], 0);
+
+        // player hand
+        round.get_player(0).take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen), Card::new(Suit::Hearts, Rank::Queen),
+            Card::new(Suit::Clubs, Rank::Two), Card::new(Suit::Diamonds, Rank::Two),
+            Card::new(Suit::Diamonds, Rank::Nine), Card::new(Suit::Diamonds, Rank::Three),
+            Card::new(Suit::Diamonds, Rank::Seven) 
+        ]);
+
+        let legal_actions = round.get_legal_actions(0);
+        assert_eq!(legal_actions, vec![
+            Action::Two, Action::Three, Action::Seven, Action::Nine, Action::Queen
+        ])
+    }
+
+    #[test]
+    fn test_is_over_true() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, vec![Player::new(0), Player::new(1)], 0);
+
+        round.get_player(0).take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen) 
+        ]);
+        assert!(round.is_over());
+
+    }
+
+    #[test]
+    fn test_is_over_false() {
+        let dealer = Dealer::new();
+        let mut round = Round::new(dealer, vec![Player::new(0), Player::new(1)], 0);
+
+        round.get_player(0).take_cards(&mut vec![
+            Card::new(Suit::Clubs, Rank::Queen) 
+        ]);
+        round.get_player(1).take_cards(&mut vec![
+            Card::new(Suit::Spades, Rank::Ace) 
+        ]);
+        assert!(!round.is_over());
+
     }
 }

@@ -132,7 +132,7 @@ class ShedRound:
 
         return card >= top_card
 
-    def is_over(self) -> bool:
+    def is_ove  r(self) -> bool:
         """Check if the game is over"""
 
         for player in self.players:
@@ -159,7 +159,7 @@ class ShedRound:
 
         return top_card, top_card_count
 
-    def get_state(self, players: List[ShedPlayer], game_pointer: int) -> Dict[str, Any]:
+        def get_state(self, players: List[ShedPlayer], game_pointer: int) -> Dict[str, Any]:
         """Get player's state"""
         state = {}
         active_player = players[game_pointer]

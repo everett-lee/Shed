@@ -45,8 +45,8 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn to_card(&self) -> Option<Card> {
+    pub fn to_card(&self) -> Card {
         // TODO do i need to clone?
-        ACTION_TO_CARD.get(&self).cloned()
+        ACTION_TO_CARD.get(&self).cloned().expect("There should be a matching Card")
     }
 }

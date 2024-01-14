@@ -20,6 +20,7 @@ impl Player {
         &self.hand
     }
 
+    // TODO neede
     pub fn hand_to_actions(&self) -> Vec<Action> {
         let as_set: HashSet<Action> = self.hand().iter().map(|c| c.to_action()).collect();
         let mut as_vec = Vec::from_iter(as_set);
@@ -36,7 +37,7 @@ impl Player {
     }
 
     pub fn play_card(&mut self, action: Action) -> Card {
-        let action_card = action.to_card().unwrap();
+        let action_card = action.to_card();
         let matching_card_index = self
             .hand
             .iter()

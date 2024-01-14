@@ -1,7 +1,12 @@
+use std::collections::HashSet;
+
 use crate::{
     game::{dealer::Dealer, player::Player},
     Card, Rank,
 };
+
+use super::action::Action;
+
 
 #[derive(Debug)]
 pub struct Round {
@@ -11,7 +16,7 @@ pub struct Round {
     num_players: usize,
     active_deck: Vec<Card>,
     is_over: bool,
-    winner: Option<Player>,
+    winner: Option<u32>,
     min_hand_size: u32,
 }
 
@@ -35,9 +40,58 @@ impl Round {
         &self.active_deck
     }
 
-    pub fn play_card(&mut self, card: Card) {
-        // TODO handle burn conditons
+
+    pub fn proceed_round(&mut self, players: &mut Vec<Player>, action: Action) -> u32 {
+        let deck_burned = self.handle_action(players, &action);
+
+        let player = players.get(self.active_player_id as usize)
+        .expect("Player should be present with active player ID");
+
+        if player.hand().is_empty() {
+            self.is_over = true;
+            self.winner = Some(player.player_id());
+        }
+
+        // When deck burned player goes again
+        if !deck_burned {
+            self.active_player_id = (self.active_player_id + 1) % self.num_players as u32;
+        }
+        return self.active_player_id;
+    }
+
+    pub fn handle_action(&mut self, players: &mut Vec<Player>, action: &Action) -> bool {
+        let player: &mut Player = players.get_mut(self.active_player_id as usize)
+          .expect("Players should contain player with active player ID");
+
+        if *action == Action::Pickup {
+            player.take_cards( &mut self.active_deck.to_vec());
+            self.active_deck.clear(); 
+            return false;
+        } else {
+            let card = action.to_card();
+            let deck_burned = self.play_card(card);
+            if player.hand().len() < self.min_hand_size as usize {
+                self.dealer.deal_card(player);
+            }
+            return deck_burned;
+        }   
+    }
+
+    pub fn play_card(&mut self, card: Card) -> bool {
+        if card.is_ten() {
+            self.active_deck.clear();
+            // Return true when deck burned, player plays again
+            return true;
+        }
+        
         self.active_deck.push(card);
+
+        if self.has_quad() {
+            self.active_deck.clear();
+            // Return true when deck burned, player plays again
+            return true;
+        }
+        false
     }
 
     pub fn get_deck_no_threes(&self) -> Vec<Card> {
@@ -48,7 +102,7 @@ impl Round {
             .collect()
     }
 
-    pub fn is_legal_card(&self, card: Card) -> bool {
+    pub fn is_legal_card(&self, card: &Card) -> bool {
         let no_threes = self.get_deck_no_threes();
 
         let top_card_option = no_threes.last();
@@ -63,11 +117,30 @@ impl Round {
         }
 
         if top_card.is_seven() {
-            return card <= *top_card;
+            return card <= top_card;
         }
 
         // Standard comparison, great or equal value required
-        card >= *top_card
+        card >= top_card
+    }
+
+    pub fn get_legal_actions(&mut self, player_id: u32) -> Vec<Action> {
+        let mut legal_actions: HashSet<Action> = self.players.get(player_id as usize)
+        .expect("No player with givne player ID")
+        .hand().iter()
+        .filter(|c| self.is_legal_card(c))
+        .map(|c| c.to_action())
+        .collect();
+        
+        // Only allow pickup when deck has cards
+        if !self.active_deck.is_empty() {
+            legal_actions.insert(Action::Pickup);
+        }
+
+        // HashSet to Iter to remove
+        let mut as_vec = Vec::from_iter(legal_actions);
+        as_vec.sort();
+        as_vec
     }
 
     // TODO refactor
@@ -118,5 +191,21 @@ impl Round {
             }
         }
         (None, 0)
+    }
+
+    pub fn get_player(&mut self, player_id: u32) -> &mut Player {
+        return self.players.get_mut(player_id as usize)
+            .expect("No player with given player ID");
+    }
+
+
+    pub fn is_over(&self) -> bool {
+        for player in self.players.iter() {
+            match player.hand().is_empty() {
+                true => return true,
+                false => ()
+            }
+        }
+        false
     }
 }
