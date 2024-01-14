@@ -1,3 +1,4 @@
+use crate::game::card::Card;
 use crate::game::action::Action;
 use crate::game::dealer::Dealer;
 use crate::game::player::Player;
@@ -31,7 +32,7 @@ impl Game {
         let players = self.players.as_mut_slice();
 
         for player in players {
-            for _ in [0..self.num_starting_cards] {
+            for _ in 0..self.num_starting_cards {
                 self.dealer.deal_card(player);
             }
         }
@@ -105,6 +106,14 @@ impl Game {
             }
         }
         false
+    }
+
+    pub fn get_active_deck(&self) -> &Vec<Card> {
+        self.round.active_deck()
+    }
+
+    pub fn get_player(&self, player_id: usize) -> &Player {
+        self.players.get(player_id).expect("Player with given ID should exist")
     }
 
     pub fn get_state(&self) {
