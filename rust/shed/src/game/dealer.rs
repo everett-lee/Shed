@@ -14,7 +14,7 @@ impl Dealer {
     pub fn new() -> Self {
         // create 52 card deck
         let mut deck: Vec<Card> = Suit::iter()
-            .map({ |c| Rank::iter().map(move |r| Card::new(c, r)) })
+            .map(|c| Rank::iter().map(move |r| Card::new(c, r)))
             .flatten()
             .collect();
 

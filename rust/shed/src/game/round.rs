@@ -11,7 +11,6 @@ use super::action::Action;
 #[derive(Debug)]
 pub struct Round {
     dealer: Dealer,
-    players: Vec<Player>,
     active_player_id: u32,
     num_players: usize,
     active_deck: Vec<Card>,
@@ -21,12 +20,11 @@ pub struct Round {
 }
 
 impl Round {
-    pub fn new(dealer: Dealer, players: Vec<Player>, active_player_id: u32) -> Round {
+    pub fn new(dealer: Dealer, active_player_id: u32) -> Round {
         let active_deck = vec![];
         let num_players = active_deck.len();
         Self {
             dealer,
-            players,
             active_player_id,
             num_players,
             active_deck,
@@ -124,8 +122,8 @@ impl Round {
         card >= top_card
     }
 
-    pub fn get_legal_actions(&mut self, player_id: u32) -> Vec<Action> {
-        let mut legal_actions: HashSet<Action> = self.players.get(player_id as usize)
+    pub fn get_legal_actions(&mut self, players: &Vec<Player>, player_id: u32) -> Vec<Action> {
+        let mut legal_actions: HashSet<Action> = players.get(player_id as usize)
         .expect("No player with givne player ID")
         .hand().iter()
         .filter(|c| self.is_legal_card(c))
@@ -159,10 +157,10 @@ impl Round {
             _ => return false,
         };
 
+
         for card in no_threes[last_index as usize..first_index]
             .into_iter()
-            .rev()
-        {
+            .rev() {
             if card.rank() == top_rank {
                 dup_count += 1;
             }
@@ -170,8 +168,8 @@ impl Round {
         }
 
         match dup_count {
-            4 => true,
-            _ => false,
+            4 => return true,
+            _ => return false,
         }
     }
 
@@ -193,19 +191,5 @@ impl Round {
         (None, 0)
     }
 
-    pub fn get_player(&mut self, player_id: u32) -> &mut Player {
-        return self.players.get_mut(player_id as usize)
-            .expect("No player with given player ID");
-    }
 
-
-    pub fn is_over(&self) -> bool {
-        for player in self.players.iter() {
-            match player.hand().is_empty() {
-                true => return true,
-                false => ()
-            }
-        }
-        false
-    }
 }
