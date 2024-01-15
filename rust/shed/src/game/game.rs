@@ -1,10 +1,15 @@
-use crate::game::card::Card;
+use std::str::FromStr;
+
 use crate::game::action::Action;
 use crate::game::dealer::Dealer;
 use crate::game::player::Player;
 use crate::game::round::Round;
 
-#[derive(Debug)]
+use pyo3::prelude::*;
+
+use crate::game::pycard::PyCard;
+
+#[pyclass]
 pub struct Game {
     allow_step_back: bool,
     num_starting_cards: u32,
@@ -15,15 +20,17 @@ pub struct Game {
     game_pointer: u32,
 }
 
+#[pymethods]
 impl Game {
-    pub fn new(num_players: u32, debug_mode: Option<bool>) -> Self {
+    #[new]
+    pub fn new(num_players: u32, debug_mode: bool) -> Self {
         return Game {
             allow_step_back: false,
             num_starting_cards: 5,
             dealer: Dealer::new(),
             round: Round::new(0),
             players: (0..num_players).map(|id: u32| Player::new(id)).collect(),
-            debug_mode: debug_mode.unwrap_or_else(|| false),
+            debug_mode: debug_mode,
             game_pointer: 0,
         };
     }
@@ -40,10 +47,14 @@ impl Game {
         // return game state and pointer
     }
 
-    pub fn step(&mut self, action: Action) {
+    pub fn step(&mut self, action: String) {
+
+        let parsed_action = Action::from_str(&action)
+        .expect("Provided action not a valid String representation");
+
         let next_active_player_id =
             self.round
-                .proceed_round(&mut self.dealer, &mut self.players, action);
+                .proceed_round(&mut self.dealer, &mut self.players, parsed_action);
         self.game_pointer = next_active_player_id;
 
         let next_player = self
@@ -53,19 +64,19 @@ impl Game {
         // let next_state = self.get_state...
     }
 
-    pub fn get_num_players(&self) -> u32 {
-        self.players.len() as u32
+    pub fn get_num_players(&self) -> PyResult<u32> {
+        Ok(self.players.len() as u32)
     }
 
-    pub fn get_num_actions(&self) -> u32 {
-        14
+    pub fn get_num_actions(&self) -> PyResult<u32> {
+        Ok(14)
     }
 
-    pub fn get_player_id(&self) -> u32 {
-        self.game_pointer
+    pub fn get_player_id(&self) -> PyResult<u32> {
+        Ok(self.game_pointer)
     }
 
-    pub fn get_positions(&mut self) -> Vec<u32> {
+    pub fn get_positions(&mut self) -> PyResult<Vec<u32>> {
         let mut id_handsize: Vec<(u32, usize)> = self
             .players
             .iter()
@@ -73,15 +84,16 @@ impl Game {
             .collect();
         id_handsize.sort_by(|a, b| a.1.cmp(&b.1).reverse());
         // Return the player ID or each sorted pair
-        id_handsize.iter().map(|pair| pair.0).collect()
+        let positions = id_handsize.iter().map(|pair| pair.0).collect();
+        Ok(positions)
     }
 
-    pub fn get_payoffs(&self) -> Vec<u32> {
+    pub fn get_payoffs(&self) -> PyResult<Vec<u32>> {
         let winner_id = self
             .round
             .get_winner_id()
             .expect("Winner ID should be set when payoffs determined");
-        self.players
+        let payoffs = self.players
             .iter()
             .map(|p| {
                 let is_winner = p.player_id() == winner_id;
@@ -90,30 +102,36 @@ impl Game {
                     false => 0,
                 }
             })
-            .collect()
+            .collect();
+        Ok(payoffs)
     }
 
-    pub fn get_legal_actions(&mut self) -> Vec<Action> {
-        self.round
+    pub fn get_legal_actions(&mut self) -> PyResult<Vec<String>> {
+        let action_strings = self.round
             .get_legal_actions(&self.players, self.game_pointer)
+            .iter()
+            .map(|a| a.to_string())
+            .collect();
+        Ok(action_strings)
     }
 
-    pub fn is_over(&self) -> bool {
+    pub fn is_over(&self) -> PyResult<bool> {
         for player in self.players.iter() {
             match player.hand().is_empty() {
-                true => return true,
+                true => return Ok(true),
                 false => (),
             }
         }
-        false
+        Ok(false)
     }
 
-    pub fn get_active_deck(&self) -> &Vec<Card> {
-        self.round.active_deck()
-    }
+    pub fn get_active_deck(&self) -> PyResult<Vec<PyCard>> {
+        let mut out_vec = vec![];
+        for c in self.round.active_deck().iter() {
+            out_vec.push(PyCard::new(c.suit().to_string(), c.rank().to_string()));
+        }
 
-    pub fn get_player(&self, player_id: usize) -> &Player {
-        self.players.get(player_id).expect("Player with given ID should exist")
+        Ok(out_vec)
     }
 
     pub fn get_state(&self) {

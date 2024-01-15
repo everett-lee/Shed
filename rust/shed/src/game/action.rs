@@ -3,7 +3,7 @@ use strum_macros::{Display, EnumIter};
 use crate::{Card, Rank, Suit};
 use lazy_static::lazy_static;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 lazy_static! {
     static ref ACTION_TO_CARD: HashMap<Action, Card> = {
@@ -51,5 +51,29 @@ impl Action {
             .get(&self)
             .cloned()
             .expect("There should be a matching Card")
+    }
+}
+
+impl FromStr for Action {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Action, Self::Err> {
+        match input {
+            "Ace"  => Ok(Action::Ace),
+            "Two"  => Ok(Action::Two),
+            "Three" => Ok(Action::Three),
+            "Four" => Ok(Action::Four),
+            "Five" => Ok(Action::Five),
+            "Six" => Ok(Action::Six),
+            "Seven" => Ok(Action::Seven),
+            "Eight" => Ok(Action::Eight),
+            "Nine" => Ok(Action::Nine),
+            "Ten" => Ok(Action::Ten),
+            "Jack" => Ok(Action::Jack),
+            "Queen" => Ok(Action::Queen),
+            "King" => Ok(Action::King),
+            "Pickup" => Ok(Action::Pickup),
+            _      => Err(())
+        }
     }
 }
