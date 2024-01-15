@@ -75,8 +75,7 @@ impl Round {
             self.active_deck.clear();
             return false;
         } else {
-            let card = action.to_card();
-            player.play_card(*action);
+            let card = player.play_card(*action);
             let deck_burned = self.play_card(card);
             if player.hand().len() < self.min_hand_size as usize {
                 dealer.deal_card(player);

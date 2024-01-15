@@ -41,7 +41,7 @@ impl Player {
         let matching_card_index = self
             .hand
             .iter()
-            .position(|card| *card == action_card)
+            .position(|card| card.rank() == action_card.rank())
             .expect("No matching card matching action present in hand");
         self.hand.swap_remove(matching_card_index)
     }
