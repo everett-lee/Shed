@@ -86,7 +86,6 @@ class ShedGame:
 
     def get_num_players(self) -> int:
         """Return the number of players in shed"""
-
         return self.num_players
 
     def get_num_actions(self) -> int:

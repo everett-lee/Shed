@@ -1,23 +1,16 @@
-[tool.poetry]
-name = "shed"
-version = "0.1.0"
-description = ""
-authors = ["lee <lee.m.everett@gmail.com>"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pydantic = "^2.5.1"
-rlcard = "^1.2.0"
-logzero = "^1.7.0"
-matplotlib = "^3.8.2"
-
-
-[tool.poetry.group.dev.dependencies]
-black = "^23.12.1"
-isort = "^5.13.2"
-maturin = "^1.4.0"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "rust_shed"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
