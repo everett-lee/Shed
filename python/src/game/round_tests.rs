@@ -68,7 +68,7 @@ mod round_tests {
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        assert_eq!(received_top_card, "Q");
         assert_eq!(count, 1);
     }
 
@@ -77,7 +77,7 @@ mod round_tests {
         let round = Round::new(0);
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, None);
+        assert_eq!(received_top_card, "");
         assert_eq!(count, 0);
     }
 
@@ -90,7 +90,7 @@ mod round_tests {
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        assert_eq!(received_top_card, "Q");
         assert_eq!(count, 3);
     }
 
@@ -104,7 +104,7 @@ mod round_tests {
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        assert_eq!(received_top_card, "Q");
         assert_eq!(count, 2);
     }
 
@@ -118,7 +118,7 @@ mod round_tests {
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
         let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        assert_eq!(received_top_card, "Q");
         assert_eq!(count, 3);
     }
 

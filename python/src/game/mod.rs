@@ -2,6 +2,7 @@ pub mod action;
 pub mod card;
 pub mod card_tests;
 pub mod pycard;
+pub mod pystate;
 pub mod dealer;
 pub mod dealer_tests;
 pub mod game;

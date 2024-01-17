@@ -9,6 +9,8 @@ use pyo3::prelude::*;
 
 use crate::game::pycard::PyCard;
 
+use super::pystate::PyState;
+
 #[pyclass]
 pub struct Game {
     allow_step_back: bool,
@@ -76,7 +78,7 @@ impl Game {
         Ok(self.game_pointer)
     }
 
-    pub fn get_positions(&mut self) -> PyResult<Vec<u32>> {
+    pub fn get_positions(&mut self) -> Vec<u32> {
         let mut id_handsize: Vec<(u32, usize)> = self
             .players
             .iter()
@@ -85,7 +87,7 @@ impl Game {
         id_handsize.sort_by(|a, b| a.1.cmp(&b.1).reverse());
         // Return the player ID or each sorted pair
         let positions = id_handsize.iter().map(|pair| pair.0).collect();
-        Ok(positions)
+        positions
     }
 
     pub fn get_payoffs(&self) -> PyResult<Vec<u32>> {
@@ -106,13 +108,13 @@ impl Game {
         Ok(payoffs)
     }
 
-    pub fn get_legal_actions(&mut self) -> PyResult<Vec<String>> {
+    pub fn get_legal_actions(&mut self) -> Vec<String> {
         let action_strings = self.round
             .get_legal_actions(&self.players, self.game_pointer)
             .iter()
             .map(|a| a.to_string())
             .collect();
-        Ok(action_strings)
+        action_strings
     }
 
     pub fn is_over(&self) -> PyResult<bool> {
@@ -134,7 +136,28 @@ impl Game {
         Ok(out_vec)
     }
 
-    pub fn get_state(&self) {
-        todo!()
+    pub fn get_state(&mut self) -> PyResult<PyState>{
+        let player_id = self.round.active_player_id();
+        let hand = self.players.get_mut(player_id as usize).unwrap()
+        .hand().iter()
+        .map(|c| PyCard::new(c.suit().to_string(), c.rank().to_string()))
+        .collect();
+        let live_deck_size = self.round.active_deck().len();
+        let (top_rank, top_rank_count) = self.round.get_top_card_rank_and_count();
+        let positions = self.get_positions();
+        let current_player = self.round.active_player_id();
+        let unplayed_deck_size = self.dealer.deck_size();
+        
+        let state = PyState::new(
+            self.get_legal_actions().clone(), 
+            hand,
+            live_deck_size as u32, 
+            top_rank, 
+            top_rank_count as u32, 
+            positions, 
+            current_player, 
+            unplayed_deck_size as u32
+        );
+        Ok(state)
     }
 }
