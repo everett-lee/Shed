@@ -20,7 +20,7 @@ from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
-NUM_GAMES = 500
+NUM_GAMES = 100
 USE_RANDOM = True
 
 register(
@@ -69,6 +69,7 @@ def evaluate():
     print(f"Time to run {NUM_GAMES} games: {end - start}")
 
 # 500 TIMES RUN: (1, 161.98 secs), (2, 160.63 secs), (3, 160.17)
+# 500 TIMES RUN: (1, 281.12)
 
 if __name__ == "__main__":
     evaluate()

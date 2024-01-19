@@ -37,11 +37,11 @@ def load_model(model_path, device=None):
 
 device = get_device()
 
-trained_agent = load_model(
-    model_path="./good_models/model-7-1-5000-mid-size.pth", device=device
-)
+# trained_agent = load_model(
+#     model_path="./good_models/model-7-1-5000-mid-size.pth", device=device
+# )
 
-env.set_agents([trained_agent, human_agent])
+env.set_agents([human_agent, random_agent])
 
 while True:
     print(">> Start a new game")

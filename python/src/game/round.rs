@@ -184,19 +184,20 @@ impl Round {
         }
     }
 
-    pub fn get_top_card_rank_and_count(&self) -> (String, u32) {
+    pub fn get_top_card_and_count(&self) -> (String, u32) {
         let no_threes = self.get_deck_no_threes();
 
-        let top_rank = match no_threes.last() {
-            Some(c) => c.rank(),
+        let top_card = match no_threes.last() {
+            Some(c) => Some(c), 
             _ => return (String::from(""), 0),
         };
         let mut count = 0;
         for card in no_threes.iter().rev() {
-            if card.rank() == top_rank {
+            if card.rank() == top_card.unwrap().rank() {
                 count += 1;
             } else {
-                return (top_rank.to_string(), count);
+                let (suit, rank) = (top_card.unwrap().suit(), top_card.unwrap().rank());
+                return (format!("{}{}", suit, rank), count);
             }
         }
         (String::from(""), 0)

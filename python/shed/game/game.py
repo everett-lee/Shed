@@ -1,7 +1,10 @@
+import json
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
+import rust_shed
 from logzero import logger
+from rlcard.games.base import Card
 
 from shed.game.dealer import ShedDealer
 from shed.game.judger import ShedJudger
@@ -18,15 +21,9 @@ class ShedGame:
         self.allow_step_back = False
         self.debug_mode = False
         self.np_random = np.random.RandomState()
-        self.num_players = num_players
-        self.num_starting_cards = 5
-        self.game_pointer = 0
-        self.round = None
-        self.dealer = None
-        self.judger = None
-        self.players = []
-        self.history = []
+        # TODO make parma of rust_shed, self.num_starting_cards = 5
 
+        self.game = rust_shed.Game(num_players=num_players, debug_mode=False)
         self.configure(config)
 
     def configure(self, game_config: Dict[str, Any]) -> None:
@@ -39,108 +36,83 @@ class ShedGame:
             self.num_players = game_config["game_num_players"]
 
     def init_game(self) -> Tuple[StateDict, int]:
-        """Initialilse the game"""
-        self.dealer = ShedDealer(self.np_random)
-        self.players = [ShedPlayer(i, self.np_random) for i in range(self.num_players)]
-        self.judger = ShedJudger(self.np_random)
-        self.game_pointer = 0
-
-        for player in self.players:
-            for _ in range(self.num_starting_cards):
-                self.dealer.deal_card(player)
-
-        # Init the round
-        self.round = ShedRound(self.dealer, self.players, self.np_random)
-
-        game_pointer = self.round.game_pointer
-        first_player = self.players[0]
-
-        self.winner = {}
-        for i in range(self.num_players):
-            self.winner["player" + str(i)] = 0
-
-        self.history = []
-
-        return self.get_state(first_player), game_pointer
+        next_state, game_pointer = self.game.init_game()
+        return self.get_state(player_id=game_pointer), game_pointer
+        # return self.get_state(first_player), game_pointer
 
     def step(self, action: ShedAction) -> Tuple[StateDict, int]:
         """Get the next state"""
 
-        # Proceed to the next round
-        self.game_pointer = self.round.proceed_round(self.players, action)
-        player = self.players[self.game_pointer]
-        if self.debug_mode:
-            logger.info(f"Player hand: {[c.rank for c in player.hand]}")
-            logger.info(f"New player score: {player.score}")
+        # # Proceed to the next round
+        # self.game_pointer = self.round.proceed_round(self.players, action)
+        # player = self.players[self.game_pointer]
+        # if self.debug_mode:
+        #     logger.info(f"Player hand: {[c.rank for c in player.hand]}")
+        #     logger.info(f"New player score: {player.score}")
+        #
+        # next_player = self.players[self.game_pointer]
+        # next_state = self.get_state(next_player)
+        #
+        # # TODO debug training mode
+        # # print("Round ended")
+        # # print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
+        # # print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
+        # # print()
 
-        next_player = self.players[self.game_pointer]
-        next_state = self.get_state(next_player)
+        # print("*"*100)
+        # print(f"THE ACITON IS {action}")
+        # hand = self.game.get_state(self.game.get_active_player_id()).hand
+        # print(f"THE HAND IS {[c.get_index() for c in hand]}")
+        # print("*"*100)
 
-        # TODO debug training mode
-        # print("Round ended")
-        # print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
-        # print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
-        # print()
-
-        return next_state, self.game_pointer
+        next_state, game_pointer = self.game.step(action.value)
+        return self.get_state(player_id=game_pointer), game_pointer
 
     def get_num_players(self) -> int:
         """Return the number of players in shed"""
-        return self.num_players
+        return self.game.get_num_players()
 
     def get_num_actions(self) -> int:
         """Return the number of applicable actions"""
 
-        return 14
+        return self.game.get_num_actions()
 
     def get_player_id(self):
         """Return the current player's id"""
-        return self.game_pointer
+        return self.game.get_active_player_id()
 
-    def get_state(self, player: Union[int, ShedPlayer]) -> StateDict:
+    def get_state(self, player_id: int) -> StateDict:
         """Return player's state as a dict"""
+        json_str = self.game.get_state_json(player_id=player_id)
+        state = json.loads(json_str)
 
-        if isinstance(player, int):
-            player = self.players[player]
-
-        top_card, top_card_count = self.round.get_top_card_and_count()
         return {
-            "legal_actions": self.get_legal_actions(),
-            "hand": player.hand,
-            "live_deck_size": self.round.get_active_deck_size(),
-            "active_deck": self.round.active_deck,
-            "top_card": top_card,
-            "top_card_count": top_card_count,
-            "position": self.get_position(player, self.players),
-            "current_player": self.game_pointer,
-            "unplayed_deck_size": self.dealer.get_unplayed_deck_size(),
+            "active_deck": [Card(suit=c["suit"], rank=c["rank"]) for c in state["live_deck"]],
+            "legal_actions": state["legal_actions"],
+            "hand": [f"{c['suit']}{c['rank']}" for c in state["hand"]],
+            "live_deck_size": int(state["live_deck_size"]),
+            "top_card": state["top_card"],
+            "top_card_count": int(state["top_card_count"]),
+            "position": state["positions"].index(player_id),
+            "current_player": state["current_player"],
+            "unplayed_deck_size": state["unplayed_deck_size"],
         }
 
     def is_over(self) -> bool:
         """
         Check if the game is over
         """
-        return self.round.is_over
+        return self.game.is_over()
 
     def get_position(self, player: ShedPlayer, players: List[ShedPlayer]):
         sorted_by_hand = sorted(players, key=lambda p: len(p.hand))
         ids = [p.player_id for p in sorted_by_hand]
+        raise NotImplementedError()
         return ids.index(player.player_id)
 
     def get_payoffs(self) -> List[int]:
-        """Return the payoffs of the game"""
-        winner = self.round.winner
-        payoffs = [0 for _ in range(self.num_players)]
-
-        for i, player in enumerate(self.players):
-            if player.player_id == winner.player_id:
-                payoffs[i] = 1
-            else:
-                payoffs[i] = -1
-
+        payoffs = json.loads(self.game.get_payoffs())
         return payoffs
 
     def get_legal_actions(self) -> List[ShedAction]:
-        current_player = self.players[self.game_pointer]
-        legal_actions = self.round.get_legal_actions(current_player)
-        return legal_actions
+        return [ShedAction[a] for a in self.game.get_legal_actions()]

@@ -42,7 +42,8 @@ impl Player {
             .hand
             .iter()
             .position(|card| card.rank() == action_card.rank())
-            .expect("No matching card matching action present in hand");
+            .expect(&format!("No matching card {}{} matching action present in hand {:?}", 
+            action.to_card().suit(), action.to_card().rank(), self.hand));
         self.hand.swap_remove(matching_card_index)
     }
 }

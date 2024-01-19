@@ -5,6 +5,7 @@ from collections import OrderedDict
 import numpy as np
 import rlcard
 from rlcard.envs import Env
+import rust_shed
 
 from shed.game.game import ShedGame
 from shed.game.utils import ShedAction
@@ -40,7 +41,7 @@ class ShedEnv(Env):
         self.name = "shed"
         self.default_game_config = DEFAULT_GAME_CONFIG
         config = config if config else DEFAULT_GAME_CONFIG
-        self.game = ShedGame(config)
+        self.game = ShedGame(config=config)
         super().__init__(config)
         self.obs_size = 109
         # A deck for each player's hand plus the live deck plus score TODO handle jokers
@@ -65,33 +66,28 @@ class ShedEnv(Env):
         extracted_state = {}
 
         legal_actions = OrderedDict(
-            {self.action_to_id[a]: None for a in state["legal_actions"]}
+            {self.action_to_id[ShedAction[a]]: None for a in state["legal_actions"]}
         )
         extracted_state["legal_actions"] = legal_actions
 
-        active_deck = state["active_deck"]
-        hand = state["hand"]
-        top_card = state["top_card"]
-        top_card_count = state["top_card_count"]
-        position = state["position"]
-        unplayed_deck_size = state["unplayed_deck_size"]
-
         obs = np.zeros(self.obs_size)
-        hand_idx = [self.card2index[card.get_index()] for card in hand]
+        hand = state["hand"]
+        hand_idx = [self.card2index[c] for c in hand]
         obs[hand_idx] = 1
 
         # TODO 1: use one hot for hand
         # TODO 2: reduce obs size by removing position and len(hand)
+        top_card = state["top_card"]
         if top_card:
             # One hot encode top card index
-            top_card_index = self.card2index[top_card.get_index()]
+            top_card_index = self.card2index[top_card]
             obs[top_card_index + 52] = 1
 
-        obs[104] = top_card_count
-        obs[105] = len(active_deck)
+        obs[104] = state["top_card_count"]
+        obs[105] = state["unplayed_deck_size"]
         obs[106] = len(hand)
-        obs[107] = position
-        obs[108] = unplayed_deck_size
+        obs[107] = state["position"]
+        obs[108] = state["unplayed_deck_size"]
 
         extracted_state["obs"] = obs
 
@@ -109,7 +105,6 @@ class ShedEnv(Env):
 
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
-
         extracted_state["action_record"] = self.action_recorder
 
         return extracted_state
@@ -122,7 +117,7 @@ class ShedEnv(Env):
         """
         payoffs = self.game.get_payoffs()
         # TODO remove
-        print(f"Payoffs: {payoffs}")
+        # print(f"Payoffs: {payoffs}")
         return np.array(payoffs)
 
     def _decode_action(self, action_id: int) -> ShedAction:
@@ -137,7 +132,7 @@ class ShedEnv(Env):
         legal_actions = self.game.get_legal_actions()
         decoded_action = self.id_to_action[action_id]
         if decoded_action not in legal_actions:
-            return ShedAction.Pickup
+            raise ValueError("Action not recognised")
 
         return decoded_action
 
@@ -148,7 +143,7 @@ class ShedEnv(Env):
             (dict): A dictionary of all the perfect information of the current state
         """
         state = {}
-        state["active_deck"] = [c.get_index() for c in self.game.round.active_deck]
+        # state["active_deck"] = [c.get_index() for c in self.game.round.active_deck]
         state["hand_cards"] = [
             [c.get_index() for c in self.game.players[i].hand]
             for i in range(self.num_players)
