@@ -65,7 +65,7 @@ class ShedGame:
         # print(f"THE HAND IS {[c.get_index() for c in hand]}")
         # print("*"*100)
 
-        next_state, game_pointer = self.game.step(action.value)
+        next_state, game_pointer = self.game.step(action)
         return self.get_state(player_id=game_pointer), game_pointer
 
     def get_num_players(self) -> int:
@@ -83,19 +83,18 @@ class ShedGame:
 
     def get_state(self, player_id: int) -> StateDict:
         """Return player's state as a dict"""
-        json_str = self.game.get_state_json(player_id=player_id)
-        state = json.loads(json_str)
+        state = self.game.get_state(player_id=player_id)
 
         return {
-            "active_deck": [Card(suit=c["suit"], rank=c["rank"]) for c in state["live_deck"]],
-            "legal_actions": state["legal_actions"],
-            "hand": [f"{c['suit']}{c['rank']}" for c in state["hand"]],
-            "live_deck_size": int(state["live_deck_size"]),
-            "top_card": state["top_card"],
-            "top_card_count": int(state["top_card_count"]),
-            "position": state["positions"].index(player_id),
-            "current_player": state["current_player"],
-            "unplayed_deck_size": state["unplayed_deck_size"],
+            "active_deck": [Card(suit=c.suit, rank=c.rank) for c in state.live_deck],
+            "legal_actions": state.legal_actions,
+            "hand": [c.get_index() for c in state.hand],
+            "live_deck_size": state.live_deck_size,
+            "top_card": state.top_card,
+            "top_card_count": state.top_card_count,
+            "position": state.position,
+            "current_player": state.current_player,
+            "unplayed_deck_size": state.unplayed_deck_size,
         }
 
     def is_over(self) -> bool:

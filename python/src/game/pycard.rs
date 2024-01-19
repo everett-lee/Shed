@@ -1,9 +1,7 @@
 use pyo3::prelude::*;
-use serde::Serialize;
-use serde_json::Result;
 
 #[pyclass(get_all)]
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct PyCard {
     pub suit: String,
     pub rank: String

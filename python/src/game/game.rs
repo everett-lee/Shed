@@ -84,16 +84,15 @@ impl Game {
         Ok(self.game_pointer)
     }
 
-    pub fn get_positions(&mut self) -> Vec<u32> {
+    pub fn get_position(&mut self, player_id: u32) -> u32 {
         let mut id_handsize: Vec<(u32, usize)> = self
             .players
             .iter()
             .map(|p| (p.player_id(), p.hand().len()))
             .collect();
         id_handsize.sort_by(|a, b| a.1.cmp(&b.1).reverse());
-        // Return the player ID or each sorted pair
-        let positions = id_handsize.iter().map(|pair| pair.0).collect();
-        positions
+        id_handsize.iter().map(|pair| pair.0)
+          .position(|id| id == player_id).expect("Player ID should be present") as u32
     }
 
     pub fn get_payoffs(&self) -> PyResult<String> {
@@ -156,7 +155,6 @@ impl Game {
         .collect();
         let live_deck_size = self.round.active_deck().len();
         let (top_card, top_card_count) = self.round.get_top_card_and_count();
-        let positions = self.get_positions();
         let current_player = self.round.active_player_id();
         let unplayed_deck_size = self.dealer.deck_size();
         
@@ -167,18 +165,9 @@ impl Game {
             live_deck_size as u32, 
             top_card, 
             top_card_count as u32, 
-            positions, 
+            self.get_position(player_id), 
             current_player, 
             unplayed_deck_size as u32
         )    
-    }
-
-    pub fn get_state_json(&mut self, player_id: u32) -> PyResult<String> {
-        let state = self.get_state(player_id);
-        let serialised = serde_json::to_string(&state);
-        match serialised {
-            Ok(s)=> Ok(s),
-            Err(_) => panic!("Could not serialise state")
-        }
     }
 }
