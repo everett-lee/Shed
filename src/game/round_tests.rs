@@ -1,9 +1,7 @@
-#[cfg(test)]
 mod round_tests {
-
     use crate::{
         game::{action::Action, dealer::Dealer, player::Player, round::Round},
-        Card, Rank, Suit,
+        Card, Rank, Suit
     };
 
     #[test]
@@ -67,8 +65,8 @@ mod round_tests {
         round.play_card(Card::new(Suit::Diamonds, Rank::Two));
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
-        let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "HQ");
         assert_eq!(count, 1);
     }
 
@@ -76,8 +74,8 @@ mod round_tests {
     fn test_get_top_card_and_count_empty_deck() {
         let round = Round::new(0);
 
-        let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, None);
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "");
         assert_eq!(count, 0);
     }
 
@@ -89,8 +87,8 @@ mod round_tests {
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
-        let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "HQ");
         assert_eq!(count, 3);
     }
 
@@ -103,8 +101,8 @@ mod round_tests {
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
-        let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "HQ");
         assert_eq!(count, 2);
     }
 
@@ -117,8 +115,8 @@ mod round_tests {
         round.play_card(Card::new(Suit::Diamonds, Rank::Queen));
         round.play_card(Card::new(Suit::Hearts, Rank::Queen));
 
-        let (received_top_card, count) = round.get_top_card_rank_and_count();
-        assert_eq!(received_top_card, Some(Rank::Queen));
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "HQ");
         assert_eq!(count, 3);
     }
 

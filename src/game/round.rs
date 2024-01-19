@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     game::{dealer::Dealer, player::Player},
-    Card, Rank,
+    Card,
 };
 
 use super::action::Action;
@@ -188,7 +188,7 @@ impl Round {
         let no_threes = self.get_deck_no_threes();
 
         let top_card = match no_threes.last() {
-            Some(c) => Some(c), 
+            Some(c) => Some(c),
             _ => return (String::from(""), 0),
         };
         let mut count = 0;
@@ -203,9 +203,7 @@ impl Round {
         (String::from(""), 0)
     }
 
-    pub fn get_state() {
-        
-    }
+    pub fn get_state() {}
 
     pub fn get_winner_id(&self) -> Option<u32> {
         self.winner_id

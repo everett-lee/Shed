@@ -13,7 +13,7 @@ pub struct PyState {
     pub top_card_count: u32,
     pub position: u32,
     pub current_player: u32,
-    pub unplayed_deck_size: u32
+    pub unplayed_deck_size: u32,
 }
 
 #[pymethods]
@@ -28,18 +28,18 @@ impl PyState {
         top_card_count: u32,
         position: u32,
         current_player: u32,
-        unplayed_deck_size: u32
+        unplayed_deck_size: u32,
     ) -> Self {
-        return Self{
-            legal_actions, 
-            hand, 
+        return Self {
+            legal_actions,
+            hand,
             live_deck,
-            live_deck_size, 
-            top_card, 
+            live_deck_size,
+            top_card,
             top_card_count,
-            position, 
-            current_player, 
-            unplayed_deck_size, 
-        }
-    } 
+            position,
+            current_player,
+            unplayed_deck_size,
+        };
+    }
 }

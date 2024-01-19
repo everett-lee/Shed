@@ -59,8 +59,8 @@ impl FromStr for Action {
 
     fn from_str(input: &str) -> Result<Action, Self::Err> {
         match input {
-            "Ace"  => Ok(Action::Ace),
-            "Two"  => Ok(Action::Two),
+            "Ace" => Ok(Action::Ace),
+            "Two" => Ok(Action::Two),
             "Three" => Ok(Action::Three),
             "Four" => Ok(Action::Four),
             "Five" => Ok(Action::Five),
@@ -73,7 +73,7 @@ impl FromStr for Action {
             "Queen" => Ok(Action::Queen),
             "King" => Ok(Action::King),
             "Pickup" => Ok(Action::Pickup),
-            _      => Err(())
+            _ => Err(()),
         }
     }
 }
