@@ -13,19 +13,10 @@ pub struct Dealer {
 impl Dealer {
     pub fn new() -> Self {
         // create 52 card deck
-        // TODO restore?
-        // let mut deck: Vec<Card> = Suit::iter()
-        //     .map(|c| Rank::iter().map(move |r| Card::new(c, r)))
-        //     .flatten()
-        //     .collect();
-
-        let mut deck = vec![];
-
-        for suit in Suit::iter() {
-            for rank in Rank::iter() {
-                deck.push(Card::new(suit, rank));
-            }
-        }
+        let mut deck: Vec<Card> = Suit::iter()
+            .map(|c| Rank::iter().map(move |r| Card::new(c, r)))
+            .flatten()
+            .collect();
 
         let mut rng = rand::thread_rng();
         deck.shuffle(&mut rng);
