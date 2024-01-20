@@ -1,9 +1,7 @@
 from rlcard.utils.utils import print_card
 
 
-class HumanAgent(object):
-    """A human agent for Shed. It can be used to play against trained models"""
-
+class AppAgent(object):
     def __init__(self, num_actions):
         """Initilize the human agent
 
@@ -15,14 +13,6 @@ class HumanAgent(object):
 
     @staticmethod
     def step(state):
-        """Human agent will display the state and make decisions through interfaces
-
-        Args:
-            state (dict): A dictionary that represents the current state
-
-        Returns:
-            action (int): The action decided by human
-        """
         _print_state(state["raw_obs"], state["action_record"])
         action_input = input(">> You choose action (integer): ")
         while not action_input.isdigit():

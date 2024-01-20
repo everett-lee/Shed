@@ -90,15 +90,14 @@ class ShedEnv(Env):
 
         extracted_state["obs"] = obs
 
-        print("*"*100)
-        print(f"HAND INDEX: {obs[0:52]}")
-        print(f"TOP CARD INDEX: {obs[52:104]}")
-        print(f"TOP CARD: {top_card}")
-        print(f"TOP CARD COUNT: {state['top_card_count']}")
-        print(f"HAND SIZE: {len(hand)}")
-        print(f"POSITION: {state['position']}")
-        print(f"UNPLAYED DECK SIZE: {state['unplayed_deck_size']}")
-        print("*"*100)
+        if self.game.debug_mode:
+            print(f"HAND INDEX: {obs[0:52]}")
+            print(f"TOP CARD INDEX: {obs[52:104]}")
+            print(f"TOP CARD: {top_card}")
+            print(f"TOP CARD COUNT: {state['top_card_count']}")
+            print(f"HAND SIZE: {len(hand)}")
+            print(f"POSITION: {state['position']}")
+            print(f"UNPLAYED DECK SIZE: {state['unplayed_deck_size']}")
 
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
@@ -148,3 +147,6 @@ class ShedEnv(Env):
         state["current_player"] = self.game.game_pointer
         state["legal_actions"] = self.game.get_legal_actions()
         return state
+
+    def get_state(self, player_id: int):
+        return self.game.get_state(player_id)

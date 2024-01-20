@@ -4,3 +4,4 @@ rlcard==1.2.0
 logzero==1.7.0
 matplotlib==3.8.2
 numpy==1.26.3
+streamlit==1.30.0
