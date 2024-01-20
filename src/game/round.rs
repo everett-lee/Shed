@@ -200,7 +200,13 @@ impl Round {
                 return (format!("{}{}", suit, rank), count);
             }
         }
-        (String::from(""), 0)
+        match count {
+          0 => (String::from(""), 0),
+          _ =>  {
+            let (suit, rank) = (top_card.unwrap().suit(), top_card.unwrap().rank());
+            return (format!("{}{}", suit, rank), count);
+          }
+        } 
     }
 
     pub fn get_state() {}

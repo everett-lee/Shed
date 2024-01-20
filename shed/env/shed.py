@@ -90,6 +90,16 @@ class ShedEnv(Env):
 
         extracted_state["obs"] = obs
 
+        print("*"*100)
+        print(f"HAND INDEX: {obs[0:52]}")
+        print(f"TOP CARD INDEX: {obs[52:104]}")
+        print(f"TOP CARD: {top_card}")
+        print(f"TOP CARD COUNT: {state['top_card_count']}")
+        print(f"HAND SIZE: {len(hand)}")
+        print(f"POSITION: {state['position']}")
+        print(f"UNPLAYED DECK SIZE: {state['unplayed_deck_size']}")
+        print("*"*100)
+
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
         extracted_state["action_record"] = self.action_recorder

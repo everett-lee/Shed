@@ -16,7 +16,7 @@ from rlcard.utils import (
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
-SEED = 1337
+SEED = 4299
 ALGORITHM = "dqn"
 NUM_EPISODES = 5_000  # 5000
 EVALUATE_EVERY = 100  # 100
@@ -60,9 +60,9 @@ def train():
             mlp_layers=[64, 64],
             device=device,
             replay_memory_init_size=256,
-            batch_size=128,
-            replay_memory_size=1_000_000,
-            epsilon_decay_steps=500_000,  # roughly 1000 eps
+            batch_size=256,
+            replay_memory_size=1_500_000,
+            epsilon_decay_steps=1_000_000,  # roughly 2000 eps
             learning_rate=0.00005,
         )
     elif ALGORITHM == "nfsp":

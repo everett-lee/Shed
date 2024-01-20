@@ -71,6 +71,29 @@ mod round_tests {
     }
 
     #[test]
+    fn test_get_top_card_and_count_one_king() {
+        let mut round = Round::new(0);
+        round.play_card(Card::new(Suit::Clubs, Rank::Jack));
+        round.play_card(Card::new(Suit::Diamonds, Rank::Two));
+        round.play_card(Card::new(Suit::Clubs, Rank::King));
+
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "CK");
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn test_get_top_card_and_count_double_king() {
+        let mut round = Round::new(0);
+        round.play_card(Card::new(Suit::Diamonds, Rank::King));
+        round.play_card(Card::new(Suit::Hearts, Rank::King));
+
+        let (received_top_card, count) = round.get_top_card_and_count();
+        assert_eq!(received_top_card, "HK");
+        assert_eq!(count, 2);
+    }
+
+    #[test]
     fn test_get_top_card_and_count_empty_deck() {
         let round = Round::new(0);
 
