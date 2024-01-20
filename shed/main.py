@@ -1,5 +1,3 @@
-import os
-
 import rlcard
 from rlcard import models
 from rlcard.agents import CFRAgent
@@ -14,13 +12,16 @@ register(
     entry_point="shed.env.shed:ShedEnv",
 )
 
-
 env = rlcard.make(
     "shed",
     config={
         "debug_mode": True,
     },
 )
+
+device = get_device()
+
+USE_TRAINED_AGENT = False
 
 human_agent = HumanAgent(num_actions=env.num_actions)
 random_agent = RandomAgent(num_actions=env.num_actions)
@@ -35,13 +36,13 @@ def load_model(model_path, device=None):
     return agent
 
 
-device = get_device()
-
-# trained_agent = load_model(
-#     model_path="./good_models/model-7-1-5000-mid-size.pth", device=device
-# )
-
-env.set_agents([human_agent, random_agent])
+if USE_TRAINED_AGENT:
+    trained_agent = load_model(
+        model_path="./good_models/model-7-1-5000-mid-size.pth", device=device
+    )
+    env.set_agents([human_agent, trained_agent])
+else:
+    env.set_agents([human_agent, random_agent])
 
 while True:
     print(">> Start a new game")

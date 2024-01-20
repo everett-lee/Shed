@@ -1,15 +1,11 @@
 import json
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import rust_shed
 from logzero import logger
 from rlcard.games.base import Card
 
-from shed.game.dealer import ShedDealer
-from shed.game.judger import ShedJudger
-from shed.game.player import ShedPlayer
-from shed.game.round import ShedRound
 from shed.game.utils import ShedAction
 
 StateDict = Dict[str, Any]
@@ -21,8 +17,6 @@ class ShedGame:
         self.allow_step_back = False
         self.debug_mode = False
         self.np_random = np.random.RandomState()
-        # TODO make parma of rust_shed, self.num_starting_cards = 5
-
         self.game = rust_shed.Game(num_players=num_players, debug_mode=False)
         self.configure(config)
 
@@ -38,33 +32,9 @@ class ShedGame:
     def init_game(self) -> Tuple[StateDict, int]:
         next_state, game_pointer = self.game.init_game()
         return self.get_state(player_id=game_pointer), game_pointer
-        # return self.get_state(first_player), game_pointer
 
     def step(self, action: ShedAction) -> Tuple[StateDict, int]:
         """Get the next state"""
-
-        # # Proceed to the next round
-        # self.game_pointer = self.round.proceed_round(self.players, action)
-        # player = self.players[self.game_pointer]
-        # if self.debug_mode:
-        #     logger.info(f"Player hand: {[c.rank for c in player.hand]}")
-        #     logger.info(f"New player score: {player.score}")
-        #
-        # next_player = self.players[self.game_pointer]
-        # next_state = self.get_state(next_player)
-        #
-        # # TODO debug training mode
-        # # print("Round ended")
-        # # print(f"Player 1 hand: {[c.get_index() for c in self.players[0].hand]}")
-        # # print(f"Player 2 hand: {[c.get_index() for c in self.players[1].hand]}")
-        # # print()
-
-        # print("*"*100)
-        # print(f"THE ACITON IS {action}")
-        # hand = self.game.get_state(self.game.get_active_player_id()).hand
-        # print(f"THE HAND IS {[c.get_index() for c in hand]}")
-        # print("*"*100)
-
         next_state, game_pointer = self.game.step(action)
         return self.get_state(player_id=game_pointer), game_pointer
 
@@ -102,12 +72,6 @@ class ShedGame:
         Check if the game is over
         """
         return self.game.is_over()
-
-    def get_position(self, player: ShedPlayer, players: List[ShedPlayer]):
-        sorted_by_hand = sorted(players, key=lambda p: len(p.hand))
-        ids = [p.player_id for p in sorted_by_hand]
-        raise NotImplementedError()
-        return ids.index(player.player_id)
 
     def get_payoffs(self) -> List[int]:
         payoffs = json.loads(self.game.get_payoffs())

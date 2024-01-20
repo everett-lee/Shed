@@ -1,23 +1,16 @@
-import argparse
-import os
 import time
 
 import rlcard
 import torch
-from rlcard.agents import DQNAgent, RandomAgent, NFSPAgent
+from rlcard.agents import RandomAgent
 from rlcard.envs.registration import register
 from rlcard.utils import (
-    Logger,
     get_device,
-    plot_curve,
-    print_card,
-    reorganize,
     set_seed,
     tournament,
 )
 
 from shed.agents.RandomAgent import RandomAgent
-from shed.agents.ShedAgent import HumanAgent
 
 SEED = 1337
 NUM_GAMES = 500
@@ -27,6 +20,7 @@ register(
     env_id="shed",
     entry_point="shed.env.shed:ShedEnv",
 )
+
 
 def get_trained_agent(model_path, device=None):
     agent = torch.load(model_path, map_location=device)
@@ -51,7 +45,9 @@ def evaluate():
     set_seed(SEED)
 
     if not USE_RANDOM:
-        a_1 = get_trained_agent("good_models/model-28-12-10000-beats-me.pth", device=device)
+        a_1 = get_trained_agent(
+            "good_models/model-28-12-10000-beats-me.pth", device=device
+        )
         a_2 = get_trained_agent("good_models/model-30-12-30000.pth", device=device)
     else:
         a_1 = RandomAgent(num_actions=env.num_actions)
@@ -67,6 +63,7 @@ def evaluate():
         print(position, agent_name[position], reward)
     end = time.time()
     print(f"Time to run {NUM_GAMES} games: {end - start}")
+
 
 # 500 TIMES RUN: (1, 161.98 secs), (2, 160.63 secs), (3, 160.17)
 # 500 TIMES RUN: (1, 125.00 secs), (2, 116.1 secs), (3, 116.05)
