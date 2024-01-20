@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -32,7 +31,6 @@ class ShedGame:
     def init_game(self) -> Tuple[StateDict, int]:
         next_state, game_pointer = self.game.init_game()
         return self.get_state(player_id=game_pointer), game_pointer
-
     def step(self, action: ShedAction) -> Tuple[StateDict, int]:
         """Get the next state"""
         next_state, game_pointer = self.game.step(action)
@@ -74,8 +72,7 @@ class ShedGame:
         return self.game.is_over()
 
     def get_payoffs(self) -> List[int]:
-        payoffs = json.loads(self.game.get_payoffs())
-        return payoffs
+        return self.game.get_payoffs()
 
     def get_legal_actions(self) -> List[ShedAction]:
         return [ShedAction[a] for a in self.game.get_legal_actions()]

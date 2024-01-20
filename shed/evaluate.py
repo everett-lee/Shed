@@ -67,7 +67,7 @@ def evaluate():
 
 # 500 TIMES RUN: (1, 161.98 secs), (2, 160.63 secs), (3, 160.17)
 # 500 TIMES RUN: (1, 125.00 secs), (2, 116.1 secs), (3, 116.05)
-# 500 TIMES RUN: (1, 112.14 secs), (2, 107.04secs), (3, 119.5)
+# 500 TIMES RUN: (1, 112.14 secs), (2, 107.04 secs), (3, 119.5)
 
 if __name__ == "__main__":
     evaluate()

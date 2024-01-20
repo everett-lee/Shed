@@ -93,7 +93,7 @@ impl Game {
             .expect("Player ID should be present") as u32
     }
 
-    pub fn get_payoffs(&self) -> PyResult<String> {
+    pub fn get_payoffs(&self) -> PyResult<Vec<u32>> {
         let winner_id = self
             .round
             .get_winner_id()
@@ -109,11 +109,7 @@ impl Game {
                 }
             })
             .collect();
-        let serialised = serde_json::to_string(&payoffs);
-        match serialised {
-            Ok(s) => Ok(s),
-            Err(_) => panic!("Could not serialise state"),
-        }
+        Ok(payoffs)
     }
 
     pub fn get_legal_actions(&mut self) -> Vec<String> {
