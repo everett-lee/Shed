@@ -1,77 +1,94 @@
-import rlcard
-from rlcard.envs.registration import register
-from rlcard.utils import get_device
+import random
+import time
 
-from shed.agents.RandomAgent import RandomAgent
-from shed.agents.ShedAgent import HumanAgent
+import requests
 
 import streamlit as st
-import random
 
+from shed.utils.card_to_action import card_to_action, action_to_card
 from shed.utils.card_to_symbol import card_to_symbol
 
+PLAYER_ID = 0
 
-register(
-    env_id="shed",
-    entry_point="shed.env.shed:ShedEnv",
-)
 
-env = rlcard.make(
-    "shed",
-    config={
-        "debug_mode": True,
-    },
-)
+def handle_click(card_action):
+    if card_action != "Pickup":
+        action = card_to_action[card_action]
+    else:
+        action = "Pickup"
 
-device = get_device()
-
-USE_TRAINED_AGENT = False
-
-human_agent = HumanAgent(num_actions=env.num_actions)
-random_agent = RandomAgent(num_actions=env.num_actions)
-
-if USE_TRAINED_AGENT:
-    pass
-else:
-    env.set_agents([human_agent, random_agent])
-
-# Function to initialize the shared deck and players' hands
-def initialize_game():
-    player1_hand = ["SK", "H2"]
-    player2_hand = ["C1", "D5"]
-    return player1_hand, player2_hand
-
-def handle_click(card):
-    st.session_state["deck"] = st.session_state["deck"] + [card]
+    res = requests.post(f"http://localhost:8000/player/0/action/{action}")
+    print("*"*100)
+    print(res)
+    time.sleep(0.5)
 
 # Main Streamlit app
 def main():
+    # st.markdown(
+    #     """
+    # <style>
+    # button {
+    #     font-size: 30px  !important;
+    #     height: 60px;
+    #     width: 60px;
+    # }
+    # </style>
+    # """,
+    #     unsafe_allow_html=True,
+    # )
+
     st.title("Shed")
-    
-    if 'deck' not in st.session_state:
-        st.session_state['deck'] = []
 
-    # Initialize the game
-    player1_hand, player2_hand = initialize_game()
+    hand = requests.get("http://localhost:8000/player/0/hand").json()
+    legal_actions = requests.get("http://localhost:8000/player/0/legal-actions").json()
+    active_deck = requests.get("http://localhost:8000/player/0/active-deck").json()
 
-    st.header("Player 1")
-    if player1_hand:
-        p1_hand_cols = st.columns(len(player1_hand))
+    st.header("Player hand")
+    if hand:
+        p1_hand_cols = st.columns(len(hand))
         for i, col in enumerate(p1_hand_cols):
             with col:
-                c = player1_hand[i]
+                c = hand[i]
+                symbol = card_to_symbol[c]
+                st.header(symbol)
+
+    legal_cards = []
+    for action in legal_actions:
+        legal_cards.extend(action_to_card[action])
+    print("JJ"*100)
+    print(legal_actions)
+    print(legal_cards)
+    legal_hand = [card for card in hand if card in legal_cards]
+    print(hand)
+    print(legal_hand)
+
+    st.header("Player legal cards")
+    if legal_hand:
+        p1_hand_cols = st.columns(len(legal_hand))
+        for i, col in enumerate(p1_hand_cols):
+            with col:
+                c = legal_hand[i]
+                symbol = card_to_symbol[c]
+                st.header(symbol)
                 st.button(c, key=c, on_click=handle_click, args=[c])
 
-    st.header("Shared deck")
+    if "Pickup" in legal_actions:
+        st.button("Pickup", key="Pickup", on_click=handle_click, args=["Pickup"])
+
+
+    st.header("Active deck")
     st.write(f"hello {random.randint(0, 1000)}")
 
-    if st.session_state["deck"]:
-        deck_cols = st.columns(len(st.session_state["deck"]))
+    if active_deck:
+        print("*"*1000)
+        print(active_deck)
+        deck_cols = st.columns(len(active_deck))
         for i, col in enumerate(deck_cols):
             with col:
-                card = st.session_state["deck"][i]
+                card = active_deck[i]
                 symbol = card_to_symbol[card]
                 st.header(f"{card}{symbol}")
+
 
 # Run the app
 if __name__ == "__main__":

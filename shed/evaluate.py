@@ -4,11 +4,7 @@ import rlcard
 import torch
 from rlcard.agents import RandomAgent
 from rlcard.envs.registration import register
-from rlcard.utils import (
-    get_device,
-    set_seed,
-    tournament,
-)
+from rlcard.utils import get_device, set_seed, tournament
 
 from shed.agents.RandomAgent import RandomAgent
 

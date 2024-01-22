@@ -8,7 +8,7 @@ card_to_symbol = {
     "S7": "🂧",
     "S8": "🂨",
     "S9": "🂩",
-    "S10": "🂪",
+    "ST": "🂪",
     "SJ": "🂫",
     "SQ": "🂭",
     "SK": "🂮",
@@ -21,7 +21,7 @@ card_to_symbol = {
     "H7": "🂷",
     "H8": "🂸",
     "H9": "🂹",
-    "H10": "🂺",
+    "HT": "🂺",
     "HJ": "🂻",
     "HQ": "🂽",
     "HK": "🂾",
@@ -34,7 +34,7 @@ card_to_symbol = {
     "D7": "🃇",
     "D8": "🃈",
     "D9": "🃉",
-    "D10": "🃊",
+    "DT": "🃊",
     "DJ": "🃋",
     "DQ": "🃍",
     "DK": "🃎",
@@ -47,7 +47,7 @@ card_to_symbol = {
     "C7": "🃗",
     "C8": "🃘",
     "C9": "🃙",
-    "C10": "🃚",
+    "CT": "🃚",
     "CJ": "🃛",
     "CQ": "🃝",
     "CK": "🃞",
@@ -56,4 +56,3 @@ card_names = set(card_to_symbol.keys())
 card_symbols = set(card_to_symbol.values())
 if len(card_names) != len(card_symbols):
     raise Exception("Card symbols are not distinct")
-

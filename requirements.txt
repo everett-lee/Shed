@@ -5,3 +5,5 @@ logzero==1.7.0
 matplotlib==3.8.2
 numpy==1.26.3
 streamlit==1.30.0
+fastapi[all]==0.109.0
+requests==2.31.0

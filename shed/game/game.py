@@ -31,6 +31,7 @@ class ShedGame:
     def init_game(self) -> Tuple[StateDict, int]:
         next_state, game_pointer = self.game.init_game()
         return self.get_state(player_id=game_pointer), game_pointer
+
     def step(self, action: ShedAction) -> Tuple[StateDict, int]:
         """Get the next state"""
         next_state, game_pointer = self.game.step(action)

@@ -2,16 +2,10 @@ import os
 
 import rlcard
 import torch
-from rlcard.agents import DQNAgent, RandomAgent, NFSPAgent
+from rlcard.agents import DQNAgent, NFSPAgent, RandomAgent
 from rlcard.envs.registration import register
-from rlcard.utils import (
-    Logger,
-    get_device,
-    plot_curve,
-    reorganize,
-    set_seed,
-    tournament,
-)
+from rlcard.utils import (Logger, get_device, plot_curve, reorganize, set_seed,
+                          tournament)
 
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
@@ -61,8 +55,8 @@ def train():
             device=device,
             replay_memory_init_size=256,
             batch_size=256,
-            replay_memory_size=1_500_000,
-            epsilon_decay_steps=1_000_000,  # roughly 2000 eps
+            replay_memory_size=1_000_000,
+            epsilon_decay_steps=100_000,  # roughly 2000 eps
             learning_rate=0.00005,
         )
     elif ALGORITHM == "nfsp":

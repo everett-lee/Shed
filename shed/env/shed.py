@@ -6,6 +6,7 @@ import numpy as np
 import rlcard
 from rlcard.envs import Env
 
+from shed.agents.AppShedAgent import AppAgent
 from shed.game.game import ShedGame
 from shed.game.utils import ShedAction
 
@@ -102,6 +103,7 @@ class ShedEnv(Env):
         extracted_state["raw_obs"] = state
         extracted_state["raw_legal_actions"] = [a for a in state["legal_actions"]]
         extracted_state["action_record"] = self.action_recorder
+        extracted_state["current_player_id"] = state["current_player"]
 
         return extracted_state
 
@@ -150,3 +152,49 @@ class ShedEnv(Env):
 
     def get_state(self, player_id: int):
         return self.game.get_state(player_id)
+
+    def set_next_action(self, player_id: int, action: ShedAction):
+        agent = self.agents[player_id]
+        if isinstance(agent, AppAgent):
+            agent.set_next_action(action)
+        else:
+            raise Exception(f"No AppAgent for player id {player_id}")
+
+    # Override
+    async def run_async(self, is_training=False):
+        trajectories = [[] for _ in range(self.num_players)]
+        state, player_id = self.reset()
+
+        # Loop to play the game
+        trajectories[player_id].append(state)
+        while not self.is_over():
+            agent = self.agents[player_id]
+            if isinstance(agent, AppAgent):
+                action, _ = await agent.eval_step(state)
+            else:
+                action, _ = agent.eval_step(state)
+
+            # Environment steps
+            next_state, next_player_id = self.step(
+                action, self.agents[player_id].use_raw
+            )
+            # Save action
+            trajectories[player_id].append(action)
+
+            # Set the state and player
+            state = next_state
+            player_id = next_player_id
+
+            # Save state.
+            if not self.game.is_over():
+                trajectories[player_id].append(state)
+
+        # Add a final state to all the players
+        for player_id in range(self.num_players):
+            state = self.get_state(player_id)
+            trajectories[player_id].append(state)
+
+        # Payoffs
+        payoffs = self.get_payoffs()
+
+        return trajectories, payoffs
