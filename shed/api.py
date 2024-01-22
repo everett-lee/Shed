@@ -54,15 +54,15 @@ async def send_action(id: int, action: ShedAction):
 
 @app.get("/player/{id}/hand")
 async def get_hand(id: int):
-    return ENV.get_state(id)["hand"]
+    return ENV.get_game_state(id)["hand"]
 
 @app.get("/player/{id}/legal-actions")
 async def get_hand(id: int):
-    return ENV.get_state(id)["legal_actions"]
+    return ENV.get_game_state(id)["legal_actions"]
 
 @app.get("/player/{id}/active-deck")
 async def get_hand(id: int):
-    return [c.get_index() for c in ENV.get_state(id)["active_deck"]]
+    return [c.get_index() for c in ENV.get_game_state(id)["active_deck"]]
 
 @app.on_event("startup")
 async def startup_event():

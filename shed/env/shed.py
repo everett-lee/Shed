@@ -150,7 +150,7 @@ class ShedEnv(Env):
         state["legal_actions"] = self.game.get_legal_actions()
         return state
 
-    def get_state(self, player_id: int):
+    def get_game_state(self, player_id: int):
         return self.game.get_state(player_id)
 
     def set_next_action(self, player_id: int, action: ShedAction):
