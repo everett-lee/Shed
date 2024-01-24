@@ -5,7 +5,7 @@ mod game_tests {
 
     #[test]
     fn test_position() {
-        let mut game = Game::new(2, false);
+        let mut game = Game::new(2, false, 1000);
         game.init_game();
 
         for _ in 0..40 {

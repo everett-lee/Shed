@@ -10,13 +10,13 @@ from rlcard.utils import (Logger, get_device, plot_curve, reorganize, set_seed,
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
 
-SEED = 4299
+SEED = 5551
 ALGORITHM = "dqn"
-NUM_EPISODES = 5_000  # 5000
+NUM_EPISODES = 7_500  # 5000
 EVALUATE_EVERY = 100  # 100
-NUM_EVAL_GAMES = 200  # 2000
-MIN_FULL_EVAL_EPISODES = 1_000
-USE_TRAINED_ADVERSARY = False
+NUM_EVAL_GAMES = 100  # 2000
+MIN_FULL_EVAL_EPISODES = 1500
+USE_TRAINED_ADVERSARY = True
 LOG_DIR = "./logs"
 
 register(
@@ -44,6 +44,7 @@ def train():
         "shed",
         config={
             "seed": SEED,
+            "debug_mode": False
         },
     )
 
@@ -53,10 +54,10 @@ def train():
             state_shape=env.state_shape[0],
             mlp_layers=[64, 64],
             device=device,
-            replay_memory_init_size=256,
-            batch_size=256,
-            replay_memory_size=1_000_000,
-            epsilon_decay_steps=100_000,  # roughly 2000 eps
+            replay_memory_init_size=1024,
+            batch_size=1024,
+            replay_memory_size=500_000,
+            epsilon_decay_steps=500_000,
             learning_rate=0.00005,
         )
     elif ALGORITHM == "nfsp":
@@ -76,7 +77,7 @@ def train():
     agents = [agent]
 
     adversary = (
-        get_trained_agent("./logs/trained-adversary.pth", device)
+        get_trained_agent("./good_models/23-1-5000.pth", device)
         if USE_TRAINED_ADVERSARY
         else RandomAgent(num_actions=env.num_actions)
     )

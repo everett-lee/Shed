@@ -19,12 +19,14 @@ pub struct Game {
     players: Vec<Player>,
     debug_mode: bool,
     game_pointer: u32,
+    max_n_steps: u32,
+    n_steps: u32,
 }
 
 #[pymethods]
 impl Game {
     #[new]
-    pub fn new(num_players: u32, debug_mode: bool) -> Self {
+    pub fn new(num_players: u32, debug_mode: bool, max_n_steps: u32) -> Self {
         return Game {
             num_starting_cards: 5,
             dealer: Dealer::new(),
@@ -32,6 +34,8 @@ impl Game {
             players: (0..num_players).map(|id: u32| Player::new(id)).collect(),
             debug_mode: debug_mode,
             game_pointer: 0,
+            max_n_steps,
+            n_steps: 0
         };
     }
 
@@ -41,6 +45,7 @@ impl Game {
         self.players = (0..self.players.len() as u32)
             .map(|id: u32| Player::new(id))
             .collect();
+        self.n_steps = 0;
         self.game_pointer = 0;
 
         for player in self.players.as_mut_slice() {
@@ -56,6 +61,7 @@ impl Game {
     }
 
     pub fn step(&mut self, action: String) -> (PyState, u32) {
+        self.n_steps += 1;
         let parsed_action =
             Action::from_str(&action).expect("Provided action not a valid String representation");
 
@@ -94,22 +100,26 @@ impl Game {
     }
 
     pub fn get_payoffs(&self) -> PyResult<Vec<u32>> {
-        let winner_id = self
-            .round
-            .get_winner_id()
-            .expect("Winner ID should be set when payoffs determined");
-        let payoffs: Vec<u32> = self
-            .players
-            .iter()
-            .map(|p| {
-                let is_winner = p.player_id() == winner_id;
-                match is_winner {
-                    true => 1,
-                    false => 0,
-                }
-            })
-            .collect();
-        Ok(payoffs)
+        let winner_id = self.round.get_winner_id();
+
+        match winner_id {
+            Some(w_id) => {
+                let payoffs: Vec<u32> = self
+                    .players
+                    .iter()
+                    .map(|p| {
+                        let is_winner = p.player_id() == w_id;
+                        match is_winner {
+                            true => 1,
+                            false => 0,
+                        }
+                    })
+                    .collect();
+                Ok(payoffs)
+            }
+            // Case of early exit due to game timeout, return e.g. [0, 0]
+            None => return Ok(self.players.iter().map(|id| 0).collect()),
+        }
     }
 
     pub fn get_legal_actions(&mut self) -> Vec<String> {
@@ -123,6 +133,10 @@ impl Game {
     }
 
     pub fn is_over(&self) -> PyResult<bool> {
+        if self.n_steps >= self.max_n_steps {
+            return Ok(true);
+        }
+
         for player in self.players.iter() {
             match player.hand().is_empty() {
                 true => return Ok(true),

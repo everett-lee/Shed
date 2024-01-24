@@ -1,5 +1,6 @@
 import random
 import time
+import uuid
 
 import requests
 
@@ -8,86 +9,84 @@ import streamlit as st
 from shed.utils.card_to_action import card_to_action, action_to_card
 from shed.utils.card_to_symbol import card_to_symbol
 
+st.set_page_config(layout="wide")
 PLAYER_ID = 0
 
-
-def handle_click(card_action):
+def handle_click(game_id: str, card_action: str):
     if card_action != "Pickup":
         action = card_to_action[card_action]
     else:
         action = "Pickup"
 
-    res = requests.post(f"http://localhost:8000/player/0/action/{action}")
+    res = requests.post(f"http://localhost:8000/game/{game_id}/player/0/action/{action}")
     print("*"*100)
     print(res)
     time.sleep(0.5)
 
+def convert_active_deck(active_deck):
+    return [f"{c['suit']}{c['rank']}" for c in active_deck]
+
 # Main Streamlit app
 def main():
-    # st.markdown(
-    #     """
-    # <style>
-    # button {
-    #     font-size: 30px  !important;
-    #     height: 60px;
-    #     width: 60px;
-    # }
-    # </style>
-    # """,
-    #     unsafe_allow_html=True,
-    # )
-
     st.title("Shed")
 
-    hand = requests.get("http://localhost:8000/player/0/hand").json()
-    legal_actions = requests.get("http://localhost:8000/player/0/legal-actions").json()
-    active_deck = requests.get("http://localhost:8000/player/0/active-deck").json()
+    if "game_id" not in st.session_state:
+        game_id = uuid.uuid4()
+        st.session_state["game_id"] = game_id
+        requests.post(f"http://localhost:8000/game/{game_id}")
+    game_id = st.session_state["game_id"]
 
-    st.header("Player hand")
-    if hand:
-        p1_hand_cols = st.columns(len(hand))
-        for i, col in enumerate(p1_hand_cols):
-            with col:
-                c = hand[i]
-                symbol = card_to_symbol[c]
-                st.header(symbol)
+    winner = requests.get(f"http://localhost:8000/game/{game_id}/winner").json()
+    if winner == 0:
+        st.header("YOU WIN :)")
+    elif winner >= 1:
+        st.header("YOU LOST :(")
+    else:
+        state = requests.get(f"http://localhost:8000/game/{game_id}/player/0/state").json()
+        opp_hand_size = requests.get(f"http://localhost:8000/game/{game_id}/player/1/hand-size").json()
+        hand = state["hand"]
+        legal_actions = state["legal_actions"]
+        active_deck = convert_active_deck(state["active_deck"])
+        unplayed_deck_size = state["unplayed_deck_size"]
 
-    legal_cards = []
-    for action in legal_actions:
-        legal_cards.extend(action_to_card[action])
-    print("JJ"*100)
-    print(legal_actions)
-    print(legal_cards)
-    legal_hand = [card for card in hand if card in legal_cards]
-    print(hand)
-    print(legal_hand)
+        st.header("Player hand")
+        if hand:
+            p1_hand_cols = st.columns(len(hand))
+            for i, col in enumerate(p1_hand_cols):
+                with col:
+                    c = hand[i]
+                    symbol = card_to_symbol[c]
+                    st.header(symbol)
 
-    st.header("Player legal cards")
-    if legal_hand:
-        p1_hand_cols = st.columns(len(legal_hand))
-        for i, col in enumerate(p1_hand_cols):
-            with col:
-                c = legal_hand[i]
-                symbol = card_to_symbol[c]
-                st.header(symbol)
-                st.button(c, key=c, on_click=handle_click, args=[c])
+        legal_cards = []
+        for action in legal_actions:
+            legal_cards.extend(action_to_card[action])
+        legal_hand = [card for card in hand if card in legal_cards]
 
-    if "Pickup" in legal_actions:
-        st.button("Pickup", key="Pickup", on_click=handle_click, args=["Pickup"])
+        st.header("Player legal cards")
+        if legal_hand:
+            p1_hand_cols = st.columns(len(legal_hand))
+            for i, col in enumerate(p1_hand_cols):
+                with col:
+                    c = legal_hand[i]
+                    symbol = card_to_symbol[c]
+                    st.header(symbol)
+                    st.button(c, key=c, on_click=handle_click, args=[game_id, c])
 
+        if "Pickup" in legal_actions:
+            st.button("Pickup", key="Pickup", on_click=handle_click, args=[game_id, "Pickup"])
 
-    st.header("Active deck")
-    st.write(f"hello {random.randint(0, 1000)}")
+        st.write(f"Unplayed deck size: {unplayed_deck_size}")
+        st.write(f"Opponent hand size: {opp_hand_size}")
+        st.header("Active deck")
 
-    if active_deck:
-        print("*"*1000)
-        print(active_deck)
-        deck_cols = st.columns(len(active_deck))
-        for i, col in enumerate(deck_cols):
-            with col:
-                card = active_deck[i]
-                symbol = card_to_symbol[card]
-                st.header(f"{card}{symbol}")
+        if active_deck:
+            deck_cols = st.columns(len(active_deck))
+            for i, col in enumerate(deck_cols):
+                with col:
+                    card = active_deck[i]
+                    symbol = card_to_symbol[card]
+                    st.header(f"{card}{symbol}")
 
 
 # Run the app
