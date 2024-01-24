@@ -9,6 +9,7 @@ from rlcard.utils import (Logger, get_device, plot_curve, reorganize, set_seed,
 
 from shed.agents.RandomAgent import RandomAgent
 from shed.agents.ShedAgent import HumanAgent
+from shed.utils.model_utils import get_trained_agent
 
 SEED = 5551
 ALGORITHM = "dqn"
@@ -25,12 +26,6 @@ register(
 )
 
 
-def get_trained_agent(model_path, device=None):
-    agent = torch.load(model_path, map_location=device)
-    agent.set_device(device)
-    return agent
-
-
 def train():
     # Check whether gpu is available
     device = get_device()
@@ -42,10 +37,7 @@ def train():
     # Make the environment with seed
     env = rlcard.make(
         "shed",
-        config={
-            "seed": SEED,
-            "debug_mode": False
-        },
+        config={"seed": SEED, "debug_mode": False},
     )
 
     if ALGORITHM == "dqn":

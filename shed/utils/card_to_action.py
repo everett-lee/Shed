@@ -66,5 +66,5 @@ action_to_card = {
     "Jack": ["SJ", "HJ", "DJ", "CJ"],
     "Queen": ["SQ", "HQ", "DQ", "CQ"],
     "King": ["SK", "HK", "DK", "CK"],
-    "Pickup": []
+    "Pickup": [],
 }

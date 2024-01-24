@@ -3,14 +3,14 @@ import time
 import uuid
 
 import requests
-
 import streamlit as st
 
-from shed.utils.card_to_action import card_to_action, action_to_card
+from shed.utils.card_to_action import action_to_card, card_to_action
 from shed.utils.card_to_symbol import card_to_symbol
 
 st.set_page_config(layout="wide")
 PLAYER_ID = 0
+
 
 def handle_click(game_id: str, card_action: str):
     if card_action != "Pickup":
@@ -18,13 +18,17 @@ def handle_click(game_id: str, card_action: str):
     else:
         action = "Pickup"
 
-    res = requests.post(f"http://localhost:8000/game/{game_id}/player/0/action/{action}")
-    print("*"*100)
+    res = requests.post(
+        f"http://localhost:8000/game/{game_id}/player/0/action/{action}"
+    )
+    print("*" * 100)
     print(res)
     time.sleep(0.5)
 
+
 def convert_active_deck(active_deck):
     return [f"{c['suit']}{c['rank']}" for c in active_deck]
+
 
 # Main Streamlit app
 def main():
@@ -42,8 +46,12 @@ def main():
     elif winner >= 1:
         st.header("YOU LOST :(")
     else:
-        state = requests.get(f"http://localhost:8000/game/{game_id}/player/0/state").json()
-        opp_hand_size = requests.get(f"http://localhost:8000/game/{game_id}/player/1/hand-size").json()
+        state = requests.get(
+            f"http://localhost:8000/game/{game_id}/player/0/state"
+        ).json()
+        opp_hand_size = requests.get(
+            f"http://localhost:8000/game/{game_id}/player/1/hand-size"
+        ).json()
         hand = state["hand"]
         legal_actions = state["legal_actions"]
         active_deck = convert_active_deck(state["active_deck"])
@@ -74,7 +82,9 @@ def main():
                     st.button(c, key=c, on_click=handle_click, args=[game_id, c])
 
         if "Pickup" in legal_actions:
-            st.button("Pickup", key="Pickup", on_click=handle_click, args=[game_id, "Pickup"])
+            st.button(
+                "Pickup", key="Pickup", on_click=handle_click, args=[game_id, "Pickup"]
+            )
 
         st.write(f"Unplayed deck size: {unplayed_deck_size}")
         st.write(f"Opponent hand size: {opp_hand_size}")

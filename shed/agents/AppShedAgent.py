@@ -5,6 +5,7 @@ from shed.game.utils import ShedAction
 
 MAX_TIME_TO_PLAY_SECS = 300
 
+
 class AppAgent(object):
     def __init__(self, num_actions):
         """Initilize the human agent

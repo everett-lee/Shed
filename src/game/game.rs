@@ -35,7 +35,7 @@ impl Game {
             debug_mode: debug_mode,
             game_pointer: 0,
             max_n_steps,
-            n_steps: 0
+            n_steps: 0,
         };
     }
 

@@ -1,7 +1,7 @@
 mod round_tests {
     use crate::{
         game::{action::Action, dealer::Dealer, player::Player, round::Round},
-        Card, Rank, Suit
+        Card, Rank, Suit,
     };
 
     #[test]

@@ -15,8 +15,7 @@ app = FastAPI()
 
 # TODO evict envs after time to avoid memory leaks
 # TODO evict over max_games size
-envs = {
-}
+envs = {}
 
 winners = {}
 register(
@@ -32,6 +31,7 @@ trained_agent = load_model(
     model_path="./good_models/24-1-7500-v-trained.pth", device=device
 )
 USE_TRAINED_AGENT = True
+
 
 async def start_env(game_id: str):
     env: ShedEnv = rlcard.make(
@@ -59,51 +59,61 @@ async def start_env(game_id: str):
         del envs[game_id]
         print(f"{len(envs)} games remaining")
 
+
 @app.get("/")
 async def root():
     return "It's alive"
+
 
 @app.post("/game/{game_id}/player/{player_id}/action/{action}")
 async def send_action(game_id: str, player_id: int, action: ShedAction):
     env = envs[game_id]
     env.set_next_action(player_id, action)
 
+
 @app.get("/game/{game_id}/player/{player_id}/hand")
 async def get_hand(game_id: str, player_id: int):
     env = envs[game_id]
     return env.get_game_state(player_id)["hand"]
+
 
 @app.get("/game/{game_id}/player/{player_id}/legal-actions")
 async def get_legal_action(game_id: str, player_id: int):
     env = envs[game_id]
     return env.get_game_state(player_id)["legal_actions"]
 
+
 @app.get("/game/{game_id}/player/{player_id}/active-deck")
 async def get_active_deck(game_id: str, player_id: int):
     env = envs[game_id]
     return [c.get_index() for c in env.get_game_state(player_id)["active_deck"]]
+
 
 @app.get("/game/{game_id}/player/{player_id}/unplayed-deck-size")
 async def get_unplayed_deck_size(game_id: str, player_id: int):
     env = envs[game_id]
     return env.get_game_state(player_id)["unplayed_deck_size"]
 
+
 @app.get("/game/{game_id}/player/{player_id}/state")
 async def get_unplayed_deck_size(game_id: str, player_id: int):
     env = envs[game_id]
     return env.get_game_state(player_id)
+
 
 @app.get("/game/{game_id}/player/{player_id}/hand-size")
 async def get_hand_size(game_id: str, player_id: int):
     env = envs[game_id]
     return len(env.get_game_state(player_id)["hand"])
 
+
 @app.get("/game/{game_id}/winner")
 async def get_unplayed_deck_size(game_id: str):
     if game_id in winners:
         return winners[game_id]
     return -1
+
+
 @app.post("/game/{game_id}")
 async def startup_event(game_id: str):
     asyncio.create_task(start_env(game_id))
-

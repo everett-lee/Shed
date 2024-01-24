@@ -16,7 +16,9 @@ class ShedGame:
         self.allow_step_back = False
         self.debug_mode = False
         self.np_random = np.random.RandomState()
-        self.game = rust_shed.Game(num_players=num_players, debug_mode=False, max_n_steps=10_000)
+        self.game = rust_shed.Game(
+            num_players=num_players, debug_mode=False, max_n_steps=10_000
+        )
         self.configure(config)
 
     def configure(self, game_config: Dict[str, Any]) -> None:

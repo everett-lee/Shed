@@ -1,12 +1,12 @@
 import time
 
 import rlcard
-import torch
 from rlcard.agents import RandomAgent
 from rlcard.envs.registration import register
 from rlcard.utils import get_device, set_seed, tournament
 
 from shed.agents.RandomAgent import RandomAgent
+from shed.utils.model_utils import get_trained_agent
 
 SEED = 1337
 NUM_GAMES = 500
@@ -16,12 +16,6 @@ register(
     env_id="shed",
     entry_point="shed.env.shed:ShedEnv",
 )
-
-
-def get_trained_agent(model_path, device=None):
-    agent = torch.load(model_path, map_location=device)
-    agent.set_device(device)
-    return agent
 
 
 def evaluate():
